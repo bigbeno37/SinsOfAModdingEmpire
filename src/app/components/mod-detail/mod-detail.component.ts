@@ -1,4 +1,5 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import {Mod} from "../../models/Mod";
 
 @Component({
   selector: 'app-mod-detail',
@@ -6,6 +7,8 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./mod-detail.component.scss']
 })
 export class ModDetailComponent implements OnInit {
+
+  @Input() mod: Mod;
 
   constructor() { }
 

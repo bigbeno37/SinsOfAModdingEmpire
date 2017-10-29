@@ -15,6 +15,8 @@ export class HomeComponent implements OnInit {
                   new Mod("Sins of a Solar Empire", "Ironclad Studios", "The base game", ""),
   ];
 
+  currentMod: Mod = this.mods[0];
+
   constructor() { }
 
   ngOnInit() {
