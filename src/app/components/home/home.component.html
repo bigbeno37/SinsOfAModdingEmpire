@@ -1,5 +1,16 @@
-<div class="container">
-  <h1 class="title">
-    {{title}}
-  </h1>
+<div class="container-fluid">
+  <div class="row">
+    <div class="col-4">
+      <!-- Mods list -->
+      <app-mods></app-mods>
+    </div>
+
+    <div class="col-8">
+      <!-- Detailed mod view -->
+      <app-mod-detail></app-mod-detail>
+
+      <!-- Menu Bar -->
+      <app-menu></app-menu>
+    </div>
+  </div>
 </div>
