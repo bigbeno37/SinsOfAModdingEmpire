@@ -8,6 +8,8 @@ import {Mod} from "../../models/Mod";
 })
 export class HomeComponent implements OnInit {
   title = `App works !`;
+  modsListSize = 3;
+  modDetailsSize = 12 - this.modsListSize;
 
   mods: Mod[] = [ new Mod("Star Trek: Armada III", "Someone", "A total conversion mod for Sins of a Solar Empire", ""),
                   new Mod("Sins of a Solar Empire", "Ironclad Studios", "The base game", ""),
