@@ -15,6 +15,7 @@ import { ElectronService } from './providers/electron.service';
 import { ModsComponent } from './components/mods/mods.component';
 import { ModDetailComponent } from './components/mod-detail/mod-detail.component';
 import { MenuComponent } from './components/menu/menu.component';
+import { ModComponent } from './components/mod/mod.component';
 
 @NgModule({
   declarations: [
@@ -23,6 +24,7 @@ import { MenuComponent } from './components/menu/menu.component';
     ModsComponent,
     ModDetailComponent,
     MenuComponent,
+    ModComponent,
   ],
   imports: [
     BrowserModule,
