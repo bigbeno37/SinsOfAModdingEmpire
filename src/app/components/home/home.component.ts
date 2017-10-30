@@ -17,6 +17,10 @@ export class HomeComponent implements OnInit {
 
   currentMod: Mod = this.mods[0];
 
+  updateModDetails(event: Mod) {
+    this.currentMod = event;
+  }
+
   constructor() { }
 
   ngOnInit() {

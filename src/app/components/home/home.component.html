@@ -1,8 +1,9 @@
 
 <div class="row no-gutters main-screen">
   <div class="col-{{ modsListSize }}">
-    <!-- Mods list -->
-    <app-mods [mods]="mods"></app-mods>
+    <div class="container-fluid">
+      <app-mod *ngFor="let mod of mods" [mod]="mod" (modClicked)="updateModDetails($event)"></app-mod>
+    </div>
   </div>
 
   <div class="col-{{ modDetailsSize }}">
