@@ -28,7 +28,7 @@ import { ModComponent } from './components/mod/mod.component';
     BrowserModule,
     FormsModule,
     HttpModule,
-    AppRoutingModule
+    AppRoutingModule,
   ],
   providers: [ElectronService],
   bootstrap: [AppComponent]

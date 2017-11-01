@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { remote } from 'electron';
 import {Mod} from "../../models/Mod";
 
 @Component({
@@ -11,17 +12,21 @@ export class HomeComponent implements OnInit {
   modsListSize = 3;
   modDetailsSize = 12 - this.modsListSize;
 
-  mods: Mod[] = [ new Mod("Star Trek: Armada III", "Someone", "A total conversion mod for Sins of a Solar Empire", ""),
-                  new Mod("Sins of a Solar Empire", "Ironclad Studios", "The base game", ""),
-  ];
+  // mods: Mod[] = [ new Mod("Star Trek: Armada III", "Someone", "A total conversion mod for Sins of a Solar Empire", ""),
+  //                 new Mod("Sins of a Solar Empire", "Ironclad Studios", "The base game", ""),
+  // ];
 
-  currentMod: Mod = this.mods[0];
+  mods: Mod[] = [];
+  currentMod: Mod;
 
   updateModDetails(event: Mod) {
     this.currentMod = event;
   }
 
-  constructor() { }
+  constructor() {
+    this.mods = remote.getGlobal('mods');
+    this.currentMod = this.mods[0];
+  }
 
   ngOnInit() {
   }

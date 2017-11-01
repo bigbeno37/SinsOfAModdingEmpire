@@ -1,8 +1,13 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
+import {Mod} from "./src/app/models/Mod";
+import * as util from "util";
+import {isNullOrUndefined} from "util";
 
 let win, serve;
 const args = process.argv.slice(1);
+const Store = require('electron-store');
+const store = new Store();
 serve = args.some(val => val === '--serve');
 
 if (serve) {
@@ -14,6 +19,22 @@ function createWindow() {
 
   const electronScreen = screen;
   // const size = electronScreen.getPrimaryDisplay().workAreaSize;
+
+  // store.set('mods', [ new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '') ]);
+
+  if (store.get('mods') === undefined) {
+
+    let mods: Mod[] = [
+      new Mod( 'Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '' ),
+      new Mod( 'Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game', '' )
+    ];
+
+    // TODO
+    // Change to []
+    store.set('mods', mods);
+  }
+
+  global['mods'] = store.get('mods');
 
   // Create the browser window.
   win = new BrowserWindow({
