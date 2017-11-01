@@ -4,7 +4,15 @@
   }
 
   border: 1px solid black;
-  width: 100%;
+  border-top-width: 0;
 
   padding: 8px;
+}
+
+.selected {
+  border-right: 5px solid green;
+}
+
+.firstMod {
+  border-top-width: 1px;
 }

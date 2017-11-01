@@ -9,6 +9,8 @@ import {Mod} from "../../models/Mod";
 export class ModComponent implements OnInit {
 
   @Input() mod: Mod;
+  @Input() isSelected: boolean;
+  @Input() isFirstMod: boolean;
   @Output() modClicked = new EventEmitter<Mod>();
 
   onModClick() {

@@ -1,6 +1,6 @@
 <a href="#">
-  <div class="row" (click)="onModClick()">
-    <div class="col mod">
+  <div class="row mod" [ngClass]="{selected: isSelected, firstMod: isFirstMod}" (click)="onModClick()">
+    <div class="col">
       <h1 class="text-center">{{ mod.name }}</h1>
     </div>
   </div>

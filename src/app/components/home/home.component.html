@@ -2,7 +2,11 @@
 <div class="row no-gutters main-screen">
   <div class="col-{{ modsListSize }}">
     <div class="container-fluid">
-      <app-mod *ngFor="let mod of mods" [mod]="mod" (modClicked)="updateModDetails($event)"></app-mod>
+      <app-mod *ngFor="let mod of mods; let i = index"
+               [mod]="mod"
+               [isSelected]="mod.name === currentMod.name"
+               [isFirstMod]="i === 0"
+               (modClicked)="updateModDetails($event)"></app-mod>
     </div>
   </div>
 
