@@ -1,3 +1,8 @@
+a {
+  color: white;
+  text-decoration: none;
+}
+
 .mod {
   h1 {
     font-size: 20px;
@@ -7,6 +12,8 @@
   border-top-width: 0;
 
   padding: 8px;
+
+  background-image: url(../../../assets/binding_dark.png);
 }
 
 .selected {
@@ -15,4 +22,8 @@
 
 .firstMod {
   border-top-width: 1px;
+}
+
+.hovered {
+  border-right: 5px solid darkgreen;
 }

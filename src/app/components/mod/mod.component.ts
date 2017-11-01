@@ -11,10 +11,21 @@ export class ModComponent implements OnInit {
   @Input() mod: Mod;
   @Input() isSelected: boolean;
   @Input() isFirstMod: boolean;
+  isBeingHoveredOn: boolean = false;
   @Output() modClicked = new EventEmitter<Mod>();
 
   onModClick() {
     this.modClicked.emit(this.mod);
+  }
+
+  onMouseEnter() {
+    if (!this.isSelected) {
+      this.isBeingHoveredOn = true;
+    }
+  }
+
+  onMouseLeave() {
+    this.isBeingHoveredOn = false;
   }
 
   constructor() { }
