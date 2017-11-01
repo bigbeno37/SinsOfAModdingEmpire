@@ -24,6 +24,7 @@ a {
 
 .settings {
   text-align: right;
+  font-size: 50px;
 
   a {
     color: lightgrey;
@@ -31,6 +32,10 @@ a {
 
   a:hover {
     color: grey;
+  }
+
+  a:active {
+    font-size: 45px;
   }
 }
 

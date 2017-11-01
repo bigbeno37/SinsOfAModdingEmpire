@@ -15,25 +15,27 @@ if (serve) {
   });
 }
 
-function createWindow() {
-
-  const electronScreen = screen;
-  // const size = electronScreen.getPrimaryDisplay().workAreaSize;
-
-  // store.set('mods', [ new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '') ]);
+function generateDummyCode() {
+  store.delete('mods');
 
   if (!store.has('mods')) {
 
     let mods: Mod[] = [
-      new Mod( 'Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '' ),
-      new Mod( 'Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game', '' )
+      new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '', ['ArmadaIII.jpg']),
+      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game', '', ['AdventExtermination.png'])
     ];
 
     // TODO
     // Change to []
     store.set('mods', mods);
   }
+}
 
+function createWindow() {
+
+  const electronScreen = screen;
+
+  generateDummyCode();
   global['mods'] = store.get('mods');
 
   // Create the browser window.

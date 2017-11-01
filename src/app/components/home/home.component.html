@@ -1,11 +1,10 @@
-
+<div class="bg"><div class="darken"></div></div>
 <div class="row no-gutters main-screen">
   <div class="col-{{ modsListSize }}">
     <div class="container-fluid">
       <app-mod *ngFor="let mod of mods; let i = index"
                [mod]="mod"
                [isSelected]="mod.name === currentMod.name"
-               [isFirstMod]="i === 0"
                (modClicked)="updateModDetails($event)"></app-mod>
     </div>
   </div>

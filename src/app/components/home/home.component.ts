@@ -12,15 +12,18 @@ export class HomeComponent implements OnInit {
   modsListSize = 3;
   modDetailsSize = 12 - this.modsListSize;
 
-  // mods: Mod[] = [ new Mod("Star Trek: Armada III", "Someone", "A total conversion mod for Sins of a Solar Empire", ""),
-  //                 new Mod("Sins of a Solar Empire", "Ironclad Studios", "The base game", ""),
-  // ];
-
   mods: Mod[] = [];
   currentMod: Mod;
 
   updateModDetails(event: Mod) {
     this.currentMod = event;
+
+    this.updateBackground();
+  }
+
+  private updateBackground() {
+    (document.getElementsByClassName('bg')[0] as HTMLElement)
+      .style.backgroundImage = "url('assets/" + this.currentMod.backgroundPictures[0] + "')";
   }
 
   constructor() {
@@ -31,6 +34,7 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.updateBackground();
   }
 
 }

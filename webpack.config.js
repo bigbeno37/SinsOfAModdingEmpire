@@ -28,7 +28,7 @@ const styles = [
 
 //we add all our external scripts we want to load externally, like inserting in our index.html --> like as if it's .angular-cli.json
 const scripts = [
-  "./node_modules/jquery/dist/jquery.slim.min.js",
+  "./node_modules/jquery/dist/jquery.min.js",
   "./node_modules/popper.js/dist/popper.min.js",
   "./node_modules/bootstrap/dist/js/bootstrap.min.js"
 ];

@@ -10,7 +10,6 @@ export class ModComponent implements OnInit {
 
   @Input() mod: Mod;
   @Input() isSelected: boolean;
-  @Input() isFirstMod: boolean;
   isBeingHoveredOn: boolean = false;
   @Output() modClicked = new EventEmitter<Mod>();
 
