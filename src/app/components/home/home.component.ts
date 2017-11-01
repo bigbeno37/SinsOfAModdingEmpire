@@ -25,7 +25,9 @@ export class HomeComponent implements OnInit {
 
   constructor() {
     this.mods = remote.getGlobal('mods');
-    this.currentMod = this.mods[0];
+    if (this.mods.length > 0) {
+      this.currentMod = this.mods[0];
+    }
   }
 
   ngOnInit() {

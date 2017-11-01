@@ -22,7 +22,7 @@ function createWindow() {
 
   // store.set('mods', [ new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '') ]);
 
-  if (store.has('mods')) {
+  if (!store.has('mods')) {
 
     let mods: Mod[] = [
       new Mod( 'Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '' ),
