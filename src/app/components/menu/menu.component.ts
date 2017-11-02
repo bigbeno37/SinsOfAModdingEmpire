@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, Input, OnInit} from '@angular/core';
+import { ipcRenderer } from 'electron';
+import {Mod} from "../../models/Mod";
 
 @Component({
   selector: 'app-menu',
@@ -6,6 +8,13 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./menu.component.scss']
 })
 export class MenuComponent implements OnInit {
+
+  @Input() currentMod: Mod;
+
+  onPlayClicked() {
+    ipcRenderer.send('updateEnabledMods', this.currentMod.enabledMods);
+    ipcRenderer.send('launchGame');
+  }
 
   constructor() { }
 

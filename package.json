@@ -45,7 +45,9 @@
     "@angular/platform-browser-dynamic": "4.4.3",
     "@angular/router": "4.4.3",
     "core-js": "2.4.1",
+    "drivelist": "^5.2.6",
     "enhanced-resolve": "3.3.0",
+    "fs-finder": "^1.8.1",
     "rxjs": "5.4.3",
     "zone.js": "0.8.17"
   },

@@ -13,11 +13,13 @@ a {
   padding: 8px;
 
   background-image: url(../../../assets/binding_dark.png);
+  transition: border-right, box-shadow 0.5s ease;
 }
 
 .selected {
   border-right: 5px solid lighten(green, 10);
   box-shadow: 5px 0 5px -2px lighten(green, 0);
+  transition: border-right 0.5s ease, box-shadow 0.2s ease;
 }
 
 .hovered {

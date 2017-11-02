@@ -1,7 +1,7 @@
 <div class="bg"><div class="darken"></div></div>
 <div class="row no-gutters main-screen">
   <div class="col-{{ modsListSize }}">
-    <div class="container-fluid">
+    <div class="container-fluid mods">
       <app-mod *ngFor="let mod of mods; let i = index"
                [mod]="mod"
                [isSelected]="mod.name === currentMod.name"
@@ -12,7 +12,7 @@
   <div class="col-{{ modDetailsSize }}">
     <app-mod-detail [mod]="currentMod"></app-mod-detail>
 
-    <app-menu></app-menu>
+    <app-menu [currentMod]="currentMod" ></app-menu>
   </div>
 </div>
 

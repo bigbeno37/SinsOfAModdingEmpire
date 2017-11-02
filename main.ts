@@ -1,14 +1,20 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
 import {Mod} from "./src/app/models/Mod";
-import * as util from "util";
-import {isNullOrUndefined} from "util";
+
 
 let win, serve;
 const args = process.argv.slice(1);
 const Store = require('electron-store');
 const store = new Store();
+const fs = require('fs');
+const Finder = require('fs-finder');
 serve = args.some(val => val === '--serve');
+
+
+let sinsModDir = "";
+let sinsDir = "";
+
 
 if (serve) {
   require('electron-reload')(__dirname, {
@@ -21,14 +27,61 @@ function generateDummyCode() {
   if (!store.has('mods')) {
 
     let mods: Mod[] = [
-      new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!', '', ['ArmadaIII.jpg']),
-      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game', '', ['AdventExtermination.png'])
+      new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!',
+        'TXT\n' +
+        'Version 0\n' +
+        'enabledModNameCount 1\n' +
+        'enabledModName "STA3_Final_Frontier"',
+        ['ArmadaIII.jpg']),
+      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game',
+        'TXT\n' +
+        'Version 0\n' +
+        'enabledModNameCount 0',
+        ['AdventExtermination.png'])
     ];
 
     // TODO
     // Change to []
     store.set('mods', mods);
   }
+
+  store.delete('modDir');
+}
+
+function findSinsModFolder(): string {
+  let drives: string[] = ['C', 'D', 'E'];
+  let modsLocation: string;
+
+  for (let drive of drives) {
+    try {
+      let currentDir: string[] = Finder.in(drive + ':/Users/' + require("os").userInfo().username + '/Documents/').findDirectories('My Games');
+
+      if (currentDir.length > 0) {
+        modsLocation = currentDir[0] + '\\Ironclad Games\\Sins of a Solar Empire Rebellion\\Mods-Rebellion v1.85\\';
+        break;
+      }
+    } catch {}
+  }
+
+  return modsLocation;
+}
+
+function findSinsProgramFolder(): string {
+  let drives: string[] = ['C', 'D', 'E'];
+  let sinsLocation: string;
+
+  for (let drive of drives) {
+    try {
+      let currentDir: string[] = Finder.in(drive + ':/SteamLibrary/').findDirectories('steamapps');
+
+      if (currentDir.length > 0) {
+        sinsLocation = currentDir[0] + '\\common\\Sins of a Solar Empire Rebellion\\';
+        break;
+      }
+    } catch {}
+  }
+
+  return sinsLocation;
 }
 
 function createWindow() {
@@ -36,6 +89,17 @@ function createWindow() {
   const electronScreen = screen;
 
   generateDummyCode();
+
+  if (!store.has('modDir')) {
+    sinsModDir = findSinsModFolder();
+    store.set('modDir', sinsModDir);
+  }
+
+  if (!store.has('sinsDir')) {
+    sinsDir = findSinsProgramFolder();
+    store.set('sinsDir', sinsDir);
+  }
+
   global['mods'] = store.get('mods');
 
   // Create the browser window.
@@ -91,3 +155,12 @@ try {
   // Catch Error
   // throw e;
 }
+
+ipcMain.on('updateEnabledMods', (event, enabledMods) => {
+  fs.closeSync(fs.openSync(sinsModDir + 'EnabledMods.txt', 'w'));
+  fs.writeFile(sinsModDir + 'EnabledMods.txt', enabledMods, (err) => {if(err) console.log(err)});
+});
+
+ipcMain.on('launchGame', (event) => {
+  require("child_process").execFile(sinsDir + "StardockLauncher.exe", (err, data) => {if (err) console.log(err)});
+});
