@@ -46,6 +46,7 @@ function generateDummyCode() {
   }
 
   store.delete('modDir');
+  store.delete('sinsDir');
 }
 
 function findSinsModFolder(): string {
@@ -156,11 +157,9 @@ try {
   // throw e;
 }
 
-ipcMain.on('updateEnabledMods', (event, enabledMods) => {
+ipcMain.on('launchGameWithMod', (event, mod: Mod) => {
   fs.closeSync(fs.openSync(sinsModDir + 'EnabledMods.txt', 'w'));
-  fs.writeFile(sinsModDir + 'EnabledMods.txt', enabledMods, (err) => {if(err) console.log(err)});
-});
+  fs.writeFile(sinsModDir + 'EnabledMods.txt', mod.enabledMods, (err) => {if(err) console.log(err)});
 
-ipcMain.on('launchGame', (event) => {
   require("child_process").execFile(sinsDir + "StardockLauncher.exe", (err, data) => {if (err) console.log(err)});
 });

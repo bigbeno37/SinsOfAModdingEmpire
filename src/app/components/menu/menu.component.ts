@@ -12,8 +12,7 @@ export class MenuComponent implements OnInit {
   @Input() currentMod: Mod;
 
   onPlayClicked() {
-    ipcRenderer.send('updateEnabledMods', this.currentMod.enabledMods);
-    ipcRenderer.send('launchGame');
+    ipcRenderer.send('launchGameWithMod', this.currentMod);
   }
 
   constructor() { }
