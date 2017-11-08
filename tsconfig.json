@@ -9,7 +9,7 @@
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
     "allowJs": true,
-    "target": "es5",
+    "target": "ES5",
     "paths": {
       "environments": [
         "./environments"

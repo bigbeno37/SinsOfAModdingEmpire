@@ -1,6 +1,7 @@
 import { app, BrowserWindow, screen, ipcMain } from 'electron';
 import * as path from 'path';
-import {Mod} from "./src/app/models/Mod";
+import {Mod} from "./src/models/Mod";
+import STA3 from "./src/mods/STA3";
 
 
 let win, serve;
@@ -26,19 +27,8 @@ function generateDummyCode() {
 
   if (!store.has('mods')) {
 
-    let mods: Mod[] = [
-      new Mod('Star Trek: Armada III', 'Someone', 'A Star Trek mod!',
-        'TXT\n' +
-        'Version 0\n' +
-        'enabledModNameCount 1\n' +
-        'enabledModName "STA3_Final_Frontier"',
-        ['ArmadaIII.jpg']),
-      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla game',
-        'TXT\n' +
-        'Version 0\n' +
-        'enabledModNameCount 0',
-        ['AdventExtermination.png'])
-    ];
+    let mods: Mod[] = [new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], [])];
+    mods.push(STA3);
 
     // TODO
     // Change to []
@@ -159,7 +149,7 @@ try {
 
 ipcMain.on('launchGameWithMod', (event, mod: Mod) => {
   fs.closeSync(fs.openSync(sinsModDir + 'EnabledMods.txt', 'w'));
-  fs.writeFile(sinsModDir + 'EnabledMods.txt', mod.enabledMods, (err) => {if(err) console.log(err)});
+  fs.writeFile(sinsModDir + 'EnabledMods.txt', mod.getEnabledMods(), (err) => {if(err) console.log(err)});
 
   require("child_process").execFile(sinsDir + "StardockLauncher.exe", (err, data) => {if (err) console.log(err)});
 });

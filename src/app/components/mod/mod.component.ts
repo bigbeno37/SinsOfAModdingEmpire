@@ -1,5 +1,5 @@
 import {Component, EventEmitter, Input, OnInit, Output} from '@angular/core';
-import {Mod} from "../../models/Mod";
+import {Mod} from "../../../models/Mod";
 
 @Component({
   selector: 'app-mod',

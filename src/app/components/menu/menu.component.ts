@@ -1,6 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { ipcRenderer } from 'electron';
-import {Mod} from "../../models/Mod";
+import {Mod} from "../../../models/Mod";
 
 @Component({
   selector: 'app-menu',

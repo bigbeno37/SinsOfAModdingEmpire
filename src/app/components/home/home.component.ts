@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { remote } from 'electron';
-import {Mod} from "../../models/Mod";
+import {Mod} from "../../../models/Mod";
 
 @Component({
   selector: 'app-home',
