@@ -1,5 +1,6 @@
 package io.github.bigbeno37;
 
+import io.github.bigbeno37.utils.Storage;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,6 +17,8 @@ public class SinsOfAModdingEmpire extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+        Storage.importMods();
+
         Parent root = FXMLLoader.load(getClass().getResource("../../../main.fxml"));
         primaryStage.setTitle("Sins of a Modding Empire");
         primaryStage.setScene(new Scene(root));
