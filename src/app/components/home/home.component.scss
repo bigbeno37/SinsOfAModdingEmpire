@@ -1,0 +1,32 @@
+.main-screen {
+  height: 100%;
+
+  overflow: hidden;
+}
+
+.darken {
+  background-color: rgba(0, 0, 0, 0.5);
+  height: 100%;
+}
+
+.bg {
+  position: fixed;
+  left: 0;
+  right: 0;
+
+  display: block;
+  background-size: cover;
+  width: 100%;
+  height: 100%;
+  transition: background-image 0.5s ease;
+  filter: blur(2px);
+}
+
+.mods {
+  border-right: 1px solid black;
+}
+
+.mods-bg {
+  z-index: 0;
+  background-color: rgba(0,0,0,0.5);
+}

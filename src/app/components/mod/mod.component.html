@@ -1,0 +1,10 @@
+<a href="#">
+  <div class="row mod" [ngClass]="{selected: isSelected, hovered: isBeingHoveredOn}"
+       (click)="onModClick(); onMouseLeave()"
+       (mouseover)="onMouseEnter()"
+       (mouseleave)="onMouseLeave()">
+    <div class="col">
+      <h1 class="text-center">{{ mod.name }}</h1>
+    </div>
+  </div>
+</a>
