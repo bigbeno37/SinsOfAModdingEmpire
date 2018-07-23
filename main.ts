@@ -2,7 +2,10 @@ import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { Mod } from "./models/Mod";
+
 const Store = require('electron-store');
+const isOnline = require('is-online');
+const request = require('request');
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -68,6 +71,11 @@ function getModsDir() {
   return dir;
 }
 
+
+
+
+
+
 function createWindow() {
   // If debug
   if (true) {
@@ -75,6 +83,7 @@ function createWindow() {
     store.delete('modDir');
   }
 
+  // Determine location of sins exe and mod directory
   if (!store.has('sinsExe')) {
     store.set('sinsExe', getSinsExe());
   }
@@ -83,7 +92,14 @@ function createWindow() {
     store.set('modDir', getModsDir());
   }
 
-  // The sins exe and mod dir have been determined; make them available
+  // Check to see if new mods are available
+  isOnline().then(online => {
+
+    // If online, download latest mods.json from github repository if there is an update
+    if (online) {
+      request.get('');
+    }
+  });
 
   global['mods'] = [
     new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),

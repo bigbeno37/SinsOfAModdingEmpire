@@ -1,0 +1,16 @@
+[
+  {
+    "name": "Sins of a Solar Empire: Rebellion",
+    "author": "Ironclad Studios",
+    "description": "The vanilla game!",
+    "backgroundPictures": ["AdventExtermination.png"],
+    "installScript": []
+  },
+  {
+    "name": "Star Trek: Armada III",
+    "author": "Stellar Parallax",
+    "description": "A star trek mod!",
+    "backgroundPictures": ["ArmadaIII.jpg"],
+    "installScript": []
+  }
+]
