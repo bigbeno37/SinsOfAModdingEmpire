@@ -46,7 +46,7 @@ var Mod = /** @class */ (function () {
     };
     return Mod;
 }());
-exports["default"] = Mod;
+exports.Mod = Mod;
 /*
 
 INSTALLATION SCRIPT

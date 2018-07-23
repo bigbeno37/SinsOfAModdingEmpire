@@ -1,4 +1,4 @@
-export default class Mod {
+export class Mod {
   name: string;
   author: string;
   description: string;

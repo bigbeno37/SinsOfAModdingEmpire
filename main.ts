@@ -1,7 +1,7 @@
 import { app, BrowserWindow, screen } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import Mod from "./src/models/Mod";
+import { Mod } from "./models/Mod";
 
 let win, serve;
 const args = process.argv.slice(1);
