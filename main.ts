@@ -1,13 +1,89 @@
-import { app, BrowserWindow, screen } from 'electron';
+import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { Mod } from "./models/Mod";
+const Store = require('electron-store');
 
 let win, serve;
 const args = process.argv.slice(1);
 serve = args.some(val => val === '--serve');
 
+let store = new Store();
+
+// TODO: Magically find sins folder
+function findSinsExe(): string | null {
+  return null;
+}
+
+function getSinsExe(): string {
+  let foundFile = findSinsExe();
+
+  // If SoaME is able to automatically find the Sins exe file, don't prompt the user
+  if (foundFile) {
+    return foundFile;
+  }
+
+  // Unable to find Sins exe, so prompt user to select it
+  let file = dialog.showOpenDialog({
+    title: 'Select Sins exe',
+    filters: [
+      {name: 'exe', extensions: ['exe']}
+    ]
+  })[0];
+
+  // If the file selected is not the correct Sins exe, ask again
+  if (!(file.split('/').pop() === 'Sins of a Solar Empire Rebellion.exe')) {
+    return getSinsExe();
+  }
+
+  // File selected is correct Sins exe, return
+  return file;
+}
+
+// TODO: Magically find the sins mod directory
+function findModDir(): string | null {
+  return null;
+}
+
+function getModsDir() {
+  let foundDir = findModDir();
+
+  if (foundDir) {
+    return foundDir;
+  }
+
+  let dir = dialog.showOpenDialog({
+    title: 'Select Mod Directory',
+    properties: [
+      'openDirectory'
+    ]
+  })[0];
+
+  // If the directory selected is not the correct directory, ask again
+  if (!(dir.split('/').pop() === 'Mods-Rebellion v1.85')) {
+    return getModsDir();
+  }
+
+  // File selected is correct Sins exe, return
+  return dir;
+}
+
 function createWindow() {
+  // If debug
+  if (true) {
+    store.delete('sinsExe');
+    store.delete('modDir');
+  }
+
+  if (!store.has('sinsExe')) {
+    store.set('sinsExe', getSinsExe());
+  }
+
+  if (!store.has('sinsModDir')) {
+    store.set('modDir', getModsDir());
+  }
+
+  // The sins exe and mod dir have been determined; make them available
 
   global['mods'] = [
     new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),

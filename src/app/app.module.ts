@@ -19,8 +19,6 @@ import { MenuComponent } from './components/menu/menu.component';
 import { ModComponent } from './components/mod/mod.component';
 import { ModDetailComponent } from './components/mod-detail/mod-detail.component';
 
-import {Mod} from '../../models/Mod';
-
 // AoT requires an exported function for factories
 export function HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');

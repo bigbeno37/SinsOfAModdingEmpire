@@ -1,6 +1,7 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { ipcRenderer } from 'electron';
 import { Mod } from "../../../../models/Mod";
+const {dialog} = require('electron').remote;
 
 @Component({
   selector: 'app-menu',
@@ -12,7 +13,14 @@ export class MenuComponent implements OnInit {
   @Input() currentMod: Mod;
 
   onPlayClicked() {
-    ipcRenderer.send('launchGameWithMod', this.currentMod);
+    // ipcRenderer.send('launchGameWithMod', this.currentMod);
+
+    console.log(dialog.showOpenDialog({
+      title: 'hello world!',
+      properties: [
+        'openDirectory'
+      ]
+    }));
   }
 
   constructor() { }
