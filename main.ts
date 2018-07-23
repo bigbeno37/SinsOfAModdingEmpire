@@ -9,7 +9,10 @@ serve = args.some(val => val === '--serve');
 
 function createWindow() {
 
-  global['mods'] = [new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], [])];
+  global['mods'] = [
+    new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),
+    new Mod("Star Trek: Armada III", "Somebody", "A star trek mod!", ["ArmadaIII.jpg"],[])
+  ];
 
   const electronScreen = screen;
   const size = electronScreen.getPrimaryDisplay().workAreaSize;

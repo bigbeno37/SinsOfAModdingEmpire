@@ -1,18 +1,20 @@
 {
-  "name": "angular-electron",
-  "version": "4.1.0",
-  "description": "Angular 6 with Electron (Typescript + SASS + Hot Reload)",
-  "homepage": "https://github.com/maximegris/angular-electron",
+  "name": "SinsOfAModdingEmpire",
+  "version": "1.0.0",
+  "description": "Sins of a Solar Empire mod installation tool",
+  "homepage": "https://github.com/bigbeno37/SinsOfAModdingEmpire",
   "author": {
-    "name": "Maxime GRIS",
-    "email": "maxime.gris@gmail.com"
+    "name": "Ben O'Sullivan",
+    "email": "bigbeno37@gmail.com"
   },
   "keywords": [
-    "angular",
-    "angular 6",
+    "sins of a solar empire",
     "electron",
     "typescript",
-    "sass"
+    "modding",
+    "angular",
+    "mod help",
+    "automatic installation"
   ],
   "main": "main.js",
   "private": true,
