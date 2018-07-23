@@ -2,6 +2,7 @@ import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { Mod } from "./models/Mod";
+import {Promise} from 'es6-promise';
 
 const Store = require('electron-store');
 const isOnline = require('is-online');
@@ -92,51 +93,72 @@ function createWindow() {
     store.set('modDir', getModsDir());
   }
 
-  // Check to see if new mods are available
-  isOnline().then(online => {
+  new Promise(resolve => {
+    // Check to see if new mods are available
+    isOnline().then(online => {
 
-    // If online, download latest mods.json from github repository if there is an update
-    if (online) {
-      request.get('');
+      // If online, download latest mods.json
+      if (online) {
+        request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json', (error, response, body) => {
+          // If there were no errors in transmission, continue
+          if (!error && response.statusCode == 200) {
+            let mods: Mod[] = [];
+
+            JSON.parse(body).forEach(element => {
+              mods.push(new Mod(element.name, element.author, element.description, element.backgroundPictures, element.installScript));
+            });
+
+            global['mods'] = mods;
+
+            resolve();
+          }
+        });
+      }
+      else {
+        // Not online, use local mods
+        throw new Error('Offline');
+      }
+    });
+  })
+  .catch(() => {
+    global['mods'] = [
+      new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),
+      new Mod("Star Trek: Armada III", "Somebody", "A star trek mod!", ["ArmadaIII.jpg"],[])
+    ];
+  })
+  .then(() => {
+    // Create the browser window.
+    win = new BrowserWindow({
+      x: 0,
+      y: 0,
+      width: 1920,
+      height: 1080
+    });
+
+    const electronScreen = screen;
+    const size = electronScreen.getPrimaryDisplay().workAreaSize;
+
+    if (serve) {
+      require('electron-reload')(__dirname, {
+        electron: require(`${__dirname}/node_modules/electron`)});
+      win.loadURL('http://localhost:4200');
+    } else {
+      win.loadURL(url.format({
+        pathname: path.join(__dirname, 'dist/index.html'),
+        protocol: 'file:',
+        slashes: true
+      }));
     }
-  });
 
-  global['mods'] = [
-    new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),
-    new Mod("Star Trek: Armada III", "Somebody", "A star trek mod!", ["ArmadaIII.jpg"],[])
-  ];
+    win.webContents.openDevTools();
 
-  const electronScreen = screen;
-  const size = electronScreen.getPrimaryDisplay().workAreaSize;
-
-  // Create the browser window.
-  win = new BrowserWindow({
-    x: 0,
-    y: 0,
-    width: 1920,
-    height: 1080
-  });
-
-  if (serve) {
-    require('electron-reload')(__dirname, {
-     electron: require(`${__dirname}/node_modules/electron`)});
-    win.loadURL('http://localhost:4200');
-  } else {
-    win.loadURL(url.format({
-      pathname: path.join(__dirname, 'dist/index.html'),
-      protocol: 'file:',
-      slashes: true
-    }));
-  }
-
-  win.webContents.openDevTools();
-
-  // Emitted when the window is closed.
-  win.on('closed', () => {
-    // Dereference the window object, usually you would store window
-    // in an array if your app supports multi windows, this is the time
-    // when you should delete the corresponding element.
-    win = null;
+    // Emitted when the window is closed.
+    win.on('closed', () => {
+      // Dereference the window object, usually you would store window
+      // in an array if your app supports multi windows, this is the time
+      // when you should delete the corresponding element.
+      win = null;
+    });
   });
 }
 

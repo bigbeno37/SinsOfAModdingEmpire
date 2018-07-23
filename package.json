@@ -86,6 +86,7 @@
     "zone.js": "0.8.26"
   },
   "devDependencies": {
+    "@types/es6-promise": "^3.3.0",
     "electron": "2.0.3",
     "electron-builder": "20.24.4"
   }
