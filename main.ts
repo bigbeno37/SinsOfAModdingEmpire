@@ -36,7 +36,7 @@ function getSinsExe(): string {
   })[0];
 
   // If the file selected is not the correct Sins exe, ask again
-  if (!(file.split('/').pop() === 'Sins of a Solar Empire Rebellion.exe')) {
+  if (!(file.split('\\').pop() === 'StardockLauncher.exe')) {
     return getSinsExe();
   }
 
@@ -64,7 +64,7 @@ function getModsDir() {
   })[0];
 
   // If the directory selected is not the correct directory, ask again
-  if (!(dir.split('/').pop() === 'Mods-Rebellion v1.85')) {
+  if (!(dir.split('\\').pop() === 'Mods-Rebellion v1.85')) {
     return getModsDir();
   }
 

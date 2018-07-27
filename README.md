@@ -4,7 +4,7 @@ Sins of a Solar Empire mod installation tool, utilising Electron and Angular!
 ## TODO: How to use
 
 ## Contributing
-Getting started with SoaME is fairly straightforward; making sure you have NodeJS installed, fork this repository, clone your fork, open a terminal at the location you cloned to, and run `npm install`. Afterwards, run `npm start`. In a few moments you should have your own version of SoaME up and running! To build a distributable file, run `npm electron:windows`.
+Getting started with SoaME is fairly straightforward; making sure you have NodeJS installed, fork this repository, clone your fork, open a terminal at the location you cloned to, and run `npm install`. Afterwards, run `npm start`. In a few moments you should have your own version of SoaME up and running! To build a distributable file, run `npm run electron:windows`.
 
 ### How it works
 SoaME utilises two main NodeJS packages; Electron, and Angular. Electron is what powers the GUI (and is in fact just a stripped down version of Chrome), while Angular is a front end framework designed to make designing applications simpler.
