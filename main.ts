@@ -7,6 +7,7 @@ import * as fs from 'fs';
 const Store = require('electron-store');
 const isOnline = require('is-online');
 const request = require('request');
+const os = require('os');
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -18,6 +19,9 @@ const commonDrive: string[] = ["C:", "D:", "E:", "F:"]
 const commonPath: string[] = ["/Program Files (x86)/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
   "/Program Files/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
   "/SteamLibrary/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe"];
+
+//Using the user setting to check if the mod folder exists
+const checkMod: string = "/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt";
 
 async function findSinsExe() {
   return new Promise(async resolve => {
@@ -33,6 +37,24 @@ async function findSinsExe() {
 
     // Gone through all files, return null
     resolve(null);
+  });
+}
+
+//Find Mod Directory
+async function findModDir() {
+  return new Promise(async resolve => {
+    let home: string = os.homedir();
+    //The os.home returns a different file format, so it has to be fixed
+    home = home.replace(/\\/g, "/");
+    let temporary: string = home + checkMod;
+    if (await checkFileExists(temporary)) {
+      //Remove file name after the testing is completed
+      temporary = temporary.replace("EnabledMods.txt", ""); 
+      resolve(temporary);
+    }else{
+      //Return null if that's not mod folder path/user never launched the game
+      resolve(null);
+    }
   });
 }
 
@@ -69,13 +91,8 @@ async function getSinsExe() {
   return file;
 }
 
-// TODO: Magically find the sins mod directory
-function findModDir(): string | null {
-  return null;
-}
-
-function getModsDir() {
-  let foundDir = findModDir();
+async function getModsDir() {
+  let foundDir = await findModDir();
 
   if (foundDir) {
     return foundDir;
@@ -114,9 +131,9 @@ function createWindow() {
     store.set('sinsExe', getSinsExe());
   }
 
-  // if (!store.has('sinsModDir')) {
-  //   store.set('modDir', getModsDir());
-  // }
+ if (!store.has('sinsModDir')) {
+    store.set('modDir', getModsDir());
+  }
 
   new Promise(resolve => {
     // Check to see if new mods are available
