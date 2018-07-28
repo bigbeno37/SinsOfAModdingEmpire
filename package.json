@@ -29,7 +29,7 @@
     "build:prod": "npm run build -- -c production",
     "ng:serve": "ng serve",
     "ng:serve:web": "npm run postinstall:web && ng serve -o",
-    "electron:tsc": "tsc main.ts",
+    "electron:tsc": "tsc --lib es2015,dom main.ts",
     "electron:serve": "wait-on http-get://localhost:4200/ && npm run electron:tsc && electron . --serve",
     "electron:local": "npm run build:prod && electron .",
     "electron:linux": "npm run build:prod && npx electron-builder build --linux",

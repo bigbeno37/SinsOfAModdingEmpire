@@ -2,7 +2,7 @@ import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
 import { Mod } from "./models/Mod";
-import {Promise} from 'es6-promise';
+import * as fs from 'fs';
 
 const Store = require('electron-store');
 const isOnline = require('is-online');
@@ -14,13 +14,38 @@ serve = args.some(val => val === '--serve');
 
 let store = new Store();
 
-// TODO: Magically find sins folder
-function findSinsExe(): string | null {
-  return null;
+const commonDrive: string[] = ["C:", "D:", "E:", "F:"]
+const commonPath: string[] = ["/Program Files (x86)/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
+  "/Program Files/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
+  "/SteamLibrary/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe"];
+
+async function findSinsExe() {
+  return new Promise(async resolve => {
+    for(var i in commonDrive){
+      for(var j in commonPath){
+        let temporary: string = commonDrive[i]+commonPath[j];
+
+        if (await checkFileExists(temporary)) {
+          resolve(temporary);
+        }
+      }
+    }
+
+    // Gone through all files, return null
+    resolve(null);
+  });
 }
 
-function getSinsExe(): string {
-  let foundFile = findSinsExe();
+async function checkFileExists(file) {
+  return new Promise(resolve => {
+    fs.access(file, fs.constants.F_OK, error => { 
+      resolve(error ? false : true);
+    });
+  });
+}
+
+async function getSinsExe() {
+  let foundFile = await findSinsExe();
 
   // If SoaME is able to automatically find the Sins exe file, don't prompt the user
   if (foundFile) {
@@ -65,14 +90,14 @@ function getModsDir() {
 
   // If the directory selected is not the correct directory, ask again
   if (!(dir.split('\\').pop() === 'Mods-Rebellion v1.85')) {
+      console.log(dir);
+
     return getModsDir();
   }
 
   // File selected is correct Sins exe, return
   return dir;
 }
-
-
 
 
 
@@ -89,9 +114,9 @@ function createWindow() {
     store.set('sinsExe', getSinsExe());
   }
 
-  if (!store.has('sinsModDir')) {
-    store.set('modDir', getModsDir());
-  }
+  // if (!store.has('sinsModDir')) {
+  //   store.set('modDir', getModsDir());
+  // }
 
   new Promise(resolve => {
     // Check to see if new mods are available
