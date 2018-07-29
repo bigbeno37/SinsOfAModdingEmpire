@@ -1,48 +1,26 @@
 "use strict";
 exports.__esModule = true;
 var Mod = /** @class */ (function () {
-    function Mod(name, author, description, backgroundPictures, installScript) {
-        this.installScript = [];
+    function Mod(name, author, description, backgroundPictures, installScript, enabledModsName, collection) {
         this.name = name;
+        this.enabledModsName = enabledModsName === undefined ? name : enabledModsName;
         this.author = author;
         this.description = description;
         this.backgroundPictures = backgroundPictures;
         this.installScript = installScript;
+        this.collection = collection;
+        this._enabledMods = collection;
     }
-    Mod.prototype.getRequiredMods = function (script) {
-        var requiredMods = [];
-        for (var _i = 0, script_1 = script; _i < script_1.length; _i++) {
-            var line = script_1[_i];
-            // If the current line contains an extraction call AND is to be added to EnabledMods...
-            if (line.indexOf("from") !== -1 && line.indexOf("do not add to EnabledMods") === -1) {
-                var splitLine = line.split(" ");
-                // Go through each word in the line
-                for (var word in splitLine) {
-                    // If the current word is folder...
-                    if (splitLine[word].localeCompare("folder") === 0) {
-                        // Add the next word to the RequiredMods array
-                        requiredMods.push(splitLine[word + 1]);
-                        break;
-                        // Otherwise if the current word is files...
-                    }
-                    else if (splitLine[word].localeCompare("files") === 0) {
-                        // Add two words over to the RequiredMods array
-                        requiredMods.push(splitLine[word + 2]);
-                        break;
-                    }
-                }
-            }
-        }
-        return requiredMods;
-    };
-    Mod.prototype.getEnabledMods = function () {
-        var requiredMods = this.getRequiredMods(this.installScript);
-        var enabledMods = "TXT\nVersion 0\nenabledModNameCount " + requiredMods.length + "\n";
-        for (var _i = 0, requiredMods_1 = requiredMods; _i < requiredMods_1.length; _i++) {
-            var mod = requiredMods_1[_i];
-            enabledMods += 'enabledModName "' + mod + '"\n';
-        }
-        return enabledMods;
+    Mod.prototype.toJSON = function () {
+        return {
+            name: this.name,
+            enabledModsName: this.enabledModsName,
+            author: this.author,
+            description: this.description,
+            backgroundPictures: this.backgroundPictures,
+            installScript: this.installScript,
+            collection: this.collection
+        };
     };
     return Mod;
 }());

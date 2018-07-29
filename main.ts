@@ -5,6 +5,7 @@ import Mod from './models/Mod';
 import * as fs from 'fs';
 import * as request from 'request-promise-native';
 import useListeners from './IPCListeners';
+import IMod from './models/IMod';
 
 const Store = require('electron-store');
 const store = new Store();
@@ -142,7 +143,7 @@ async function createWindow() {
   store.delete('sinsExe');
   store.delete('modDir');
 
-  useListeners();
+  await useListeners();
 
   // Determine location of sins exe and mod directory
   if (!store.has('sinsExe')) {
@@ -170,8 +171,9 @@ async function createWindow() {
   const mods: Mod[] = [];
 
   JSON.parse(modsJson)
-    .forEach(mod => {
-      mods.push(new Mod(mod.name, mod.author, mod.description, mod.backgroundPictures, mod.installScript));
+    .forEach((mod: IMod) => {
+      mods.push(new Mod(
+        mod.name, mod.author, mod.description, mod.backgroundPictures, mod.installScript, mod.enabledModsName, mod.collection));
     });
 
   global['mods'] = mods;
@@ -229,7 +231,7 @@ try {
     // On OS X it's common to re-create a window in the app when the
     // dock icon is clicked and there are no other windows open.
     if (win === null) {
-      createWindow();
+      createWindow().then();
     }
   });
 
