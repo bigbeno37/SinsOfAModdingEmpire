@@ -15,7 +15,7 @@ export class MenuComponent implements OnInit {
     document.getElementById('play-button').innerHTML = 'Launching';
     document.getElementById('play-button').setAttribute('class', 'btn btn-success play-button disabled');
 
-    ipcRenderer.send('launchGameWithMod', this.currentMod);
+    ipcRenderer.send('launchGameWithMod', this.currentMod.toJSON());
   }
 
   constructor() {

@@ -11,6 +11,18 @@
     "author": "Stellar Parallax",
     "description": "A star trek mod!",
     "backgroundPictures": ["ArmadaIII.jpg"],
-    "installScript": []
+    "installScript": [],
+    "collection": [
+      {
+        "name": "The Final Frontier",
+        "enabledModsName": "STA3_Module_TFF",
+        "required": false
+      },
+      {
+        "name": "Nemesis",
+        "enabledModsName": "STA3_Core_Nemesis",
+        "required": true
+      }
+    ]
   }
 ]
