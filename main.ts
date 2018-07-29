@@ -6,19 +6,22 @@ import * as fs from 'fs';
 import * as request from 'request-promise-native';
 
 const Store = require('electron-store');
+const store = new Store();
 const isOnline = require('is-online');
-
-const stardockLauncher = 'steamapps/common/Sins of a Solar Empire Rebellion/StardockLauncher.exe';
 
 let win, serve;
 const args = process.argv.slice(1);
 serve = args.some(val => val === '--serve');
 
-const store = new Store();
 
+const stardockLauncher = 'steamapps/common/Sins of a Solar Empire Rebellion/StardockLauncher.exe';
 const commonDrive: string[] = ['C:', 'D:', 'E:', 'F:'];
 
-function findSinsExe() {
+/**
+ * Called by getStardockLauncher, responsible for automatically finding the Stardock Launcher executable
+ * @return string|null Location of Stardock Launcher executable
+ */
+function findStardockLauncher(): string | null {
   const commonPath: string[] = [
     `/Program Files (x86)/Steam/steamapps/${stardockLauncher}`,
     `/Program Files/Steam/${stardockLauncher}`,
@@ -37,8 +40,11 @@ function findSinsExe() {
   return null;
 }
 
-// Find Mod Directory
-function findModDir() {
+/**
+ * Called by getModDir, responsible for automatically finding the Sins mod directory
+ * @return string|null Location of the Sins mod directory
+ */
+function findModDir(): string | null {
   // Using the user setting to check if the mod folder exists
   const checkMod = '/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt';
 
@@ -53,8 +59,13 @@ function findModDir() {
   return null;
 }
 
-function getSinsExe() {
-  const foundFile = findSinsExe();
+/**
+ * Determines the location of the Stardock Launcher executable. Calls findStardockLauncher, and if it returns null, will prompt
+ * the user to manually navigate to it
+ * @return string The location of the Stardock Launcher executable
+ */
+function getStardockLauncher(): string {
+  const foundFile = findStardockLauncher();
 
   // If SoaME is able to automatically find the Sins exe file, don't prompt the user
   if (foundFile) {
@@ -76,13 +87,18 @@ function getSinsExe() {
 
   // If the file selected is not the correct Sins exe, ask again
   if (!(file.split('\\').pop() === 'StardockLauncher.exe')) {
-    return getSinsExe();
+    return getStardockLauncher();
   }
 
   // File selected is correct Sins exe, return
   return file;
 }
 
+/**
+ * Determines the location of the Sins mod directory. Calls findModDir, and if it returns null, will prompt
+ * the user to manually navigate to it
+ * @return string The location of the Sins mod directory
+ */
 function getModsDir() {
   const foundDir = findModDir();
 
@@ -115,8 +131,11 @@ function getModsDir() {
 }
 
 
-
-
+/**
+ * The main function that drives SoaME. First determines the location of the Stardock Launcher executable, followed by
+ * finding the Sins mod directory, obtaining the latest mods.json from the master branch on SoaME's repository, and
+ * finally loading src/index.html in electron
+ */
 async function createWindow() {
   // If debug
   store.delete('sinsExe');
@@ -124,24 +143,31 @@ async function createWindow() {
 
   // Determine location of sins exe and mod directory
   if (!store.has('sinsExe')) {
-    store.set('sinsExe', getSinsExe());
+    store.set('sinsExe', getStardockLauncher());
   }
 
   if (!store.has('sinsModDir')) {
     store.set('modDir', getModsDir());
   }
 
-  if (await isOnline()) {
-    const mods: Mod[] = [];
+  let modsJson;
 
-    JSON.parse(await request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json'))
-      .forEach(element => {
-        mods.push(new Mod(element.name, element.author, element.description, element.backgroundPictures, element.installScript));
-      }
-    );
-
-    global['mods'] = mods;
+  try {
+    if (await isOnline()) {
+      modsJson = await request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json');
+    }
+  } catch (error) {
+    modsJson = fs.readFileSync('data/mods.json', 'utf8');
   }
+
+  const mods: Mod[] = [];
+
+  JSON.parse(modsJson)
+    .forEach(mod => {
+      mods.push(new Mod(mod.name, mod.author, mod.description, mod.backgroundPictures, mod.installScript));
+    });
+
+  global['mods'] = mods;
 
   win = new BrowserWindow({
     x: 0,
