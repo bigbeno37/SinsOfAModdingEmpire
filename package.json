@@ -61,6 +61,7 @@
     "core-js": "2.5.6",
     "electron-reload": "1.2.2",
     "electron-store": "^2.0.0",
+    "file-exists": "^5.0.1",
     "is-online": "^7.0.0",
     "jasmine-core": "3.1.0",
     "jasmine-spec-reporter": "4.2.1",
@@ -81,12 +82,12 @@
     "tslint": "5.10.0",
     "typeface-orbitron": "0.0.54",
     "typescript": "2.7.2",
+    "username": "^3.0.0",
     "wait-on": "2.1.0",
     "webdriver-manager": "12.0.6",
     "zone.js": "0.8.26"
   },
   "devDependencies": {
-    "@types/es6-promise": "^3.3.0",
     "electron": "2.0.3",
     "electron-builder": "20.24.4"
   }

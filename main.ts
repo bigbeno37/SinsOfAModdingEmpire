@@ -1,73 +1,65 @@
 import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { Mod } from "./models/Mod";
+import { Mod } from './models/Mod';
 import * as fs from 'fs';
 
 const Store = require('electron-store');
 const isOnline = require('is-online');
 const request = require('request');
 const os = require('os');
+const username = require('username');
 
 let win, serve;
 const args = process.argv.slice(1);
 serve = args.some(val => val === '--serve');
 
-let store = new Store();
+const store = new Store();
 
-const commonDrive: string[] = ["C:", "D:", "E:", "F:"]
-const commonPath: string[] = ["/Program Files (x86)/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
-  "/Program Files/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe", 
-  "/SteamLibrary/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe"];
-
-//Using the user setting to check if the mod folder exists
-const checkMod: string = "/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt";
+const commonDrive: string[] = ['C:', 'D:', 'E:', 'F:'];
 
 async function findSinsExe() {
+  const commonPath: string[] = [
+    '/Program Files (x86)/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe',
+    '/Program Files/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe',
+    '/SteamLibrary/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe'
+  ];
   return new Promise(async resolve => {
-    for(var i in commonDrive){
-      for(var j in commonPath){
-        let temporary: string = commonDrive[i]+commonPath[j];
-
-        if (await checkFileExists(temporary)) {
-          resolve(temporary);
+    for (const drive of commonDrive) {
+      for (const pathName of commonPath) {
+        if (await checkFileExists(`${drive}${pathName}`)) {
+          resolve(`${drive}${pathName}`);
         }
       }
     }
-
     // Gone through all files, return null
     resolve(null);
   });
 }
 
-//Find Mod Directory
+// Find Mod Directory
 async function findModDir() {
+  // Using the user setting to check if the mod folder exists
+  const checkMod = '/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt';
+
   return new Promise(async resolve => {
-    let home: string = os.homedir();
-    //The os.home returns a different file format, so it has to be fixed
-    home = home.replace(/\\/g, "/");
-    let temporary: string = home + checkMod;
-    if (await checkFileExists(temporary)) {
-      //Remove file name after the testing is completed
-      temporary = temporary.replace("EnabledMods.txt", ""); 
-      resolve(temporary);
-    }else{
-      //Return null if that's not mod folder path/user never launched the game
-      resolve(null);
+    for (const drive of commonDrive) {
+      if (await checkFileExists(`${drive}:/Users/${await username()}${checkMod}`)) {
+        resolve(`${drive}:/Users/${await username()}${checkMod}`);
+      }
     }
   });
 }
 
 async function checkFileExists(file) {
   return new Promise(resolve => {
-    fs.access(file, fs.constants.F_OK, error => { 
-      resolve(error ? false : true);
-    });
+    // console.log(`Checking exists of ${file.replace(/\//g, '\\')}`);
+    resolve(fs.existsSync(file));
   });
 }
 
 async function getSinsExe() {
-  let foundFile = await findSinsExe();
+  const foundFile = await findSinsExe();
 
   // If SoaME is able to automatically find the Sins exe file, don't prompt the user
   if (foundFile) {
@@ -75,7 +67,7 @@ async function getSinsExe() {
   }
 
   // Unable to find Sins exe, so prompt user to select it
-  let file = dialog.showOpenDialog({
+  const file = dialog.showOpenDialog({
     title: 'Select Sins exe',
     filters: [
       {name: 'exe', extensions: ['exe']}
@@ -92,13 +84,13 @@ async function getSinsExe() {
 }
 
 async function getModsDir() {
-  let foundDir = await findModDir();
+  const foundDir = await findModDir();
 
   if (foundDir) {
     return foundDir;
   }
 
-  let dir = dialog.showOpenDialog({
+  const dir = dialog.showOpenDialog({
     title: 'Select Mod Directory',
     properties: [
       'openDirectory'
@@ -143,8 +135,8 @@ function createWindow() {
       if (online) {
         request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json', (error, response, body) => {
           // If there were no errors in transmission, continue
-          if (!error && response.statusCode == 200) {
-            let mods: Mod[] = [];
+          if (!error && response.statusCode === 200) {
+            const mods: Mod[] = [];
 
             JSON.parse(body).forEach(element => {
               mods.push(new Mod(element.name, element.author, element.description, element.backgroundPictures, element.installScript));
@@ -155,8 +147,7 @@ function createWindow() {
             resolve();
           }
         });
-      }
-      else {
+      } else {
         // Not online, use local mods
         throw new Error('Offline');
       }
@@ -164,8 +155,8 @@ function createWindow() {
   })
   .catch(() => {
     global['mods'] = [
-      new Mod("Sins of a Solar Empire: Rebellion", "Stardock", "The vanilla experience", ["AdventExtermination.png"], []),
-      new Mod("Star Trek: Armada III", "Somebody", "A star trek mod!", ["ArmadaIII.jpg"],[])
+      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla experience', ['AdventExtermination.png'], []),
+      new Mod('Star Trek: Armada III', 'Somebody', 'A star trek mod!', ['ArmadaIII.jpg'], [])
     ];
   })
   .then(() => {
