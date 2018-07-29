@@ -1,14 +1,14 @@
 import { app, BrowserWindow, screen, dialog } from 'electron';
 import * as path from 'path';
 import * as url from 'url';
-import { Mod } from './models/Mod';
+import Mod from './models/Mod';
 import * as fs from 'fs';
+import * as request from 'request-promise-native';
 
 const Store = require('electron-store');
 const isOnline = require('is-online');
-const request = require('request');
-const os = require('os');
-const username = require('username');
+
+const stardockLauncher = 'steamapps/common/Sins of a Solar Empire Rebellion/StardockLauncher.exe';
 
 let win, serve;
 const args = process.argv.slice(1);
@@ -18,48 +18,43 @@ const store = new Store();
 
 const commonDrive: string[] = ['C:', 'D:', 'E:', 'F:'];
 
-async function findSinsExe() {
+function findSinsExe() {
   const commonPath: string[] = [
-    '/Program Files (x86)/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe',
-    '/Program Files/Steam/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe',
-    '/SteamLibrary/steamapps/common/Sins of a Solar Empire Rebellion/Sins of a Solar Empire Rebellion.exe'
+    `/Program Files (x86)/Steam/steamapps/${stardockLauncher}`,
+    `/Program Files/Steam/${stardockLauncher}`,
+    `/SteamLibrary/${stardockLauncher}`
   ];
-  return new Promise(async resolve => {
-    for (const drive of commonDrive) {
-      for (const pathName of commonPath) {
-        if (await checkFileExists(`${drive}${pathName}`)) {
-          resolve(`${drive}${pathName}`);
-        }
+
+  for (const drive of commonDrive) {
+    for (const pathName of commonPath) {
+      const checkPath = `${drive}${pathName}`;
+      if (fs.existsSync(checkPath)) {
+        return checkPath;
       }
     }
-    // Gone through all files, return null
-    resolve(null);
-  });
+  }
+
+  return null;
 }
 
 // Find Mod Directory
-async function findModDir() {
+function findModDir() {
   // Using the user setting to check if the mod folder exists
   const checkMod = '/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt';
 
-  return new Promise(async resolve => {
-    for (const drive of commonDrive) {
-      if (await checkFileExists(`${drive}:/Users/${await username()}${checkMod}`)) {
-        resolve(`${drive}:/Users/${await username()}${checkMod}`);
-      }
+  for (const drive of commonDrive) {
+    const checkPath = `${drive}/Users/${process.env.USERNAME}${checkMod}`;
+
+    if (fs.existsSync(checkPath)) {
+      return checkPath.replace('EnabledMods.txt', '');
     }
-  });
+  }
+
+  return null;
 }
 
-async function checkFileExists(file) {
-  return new Promise(resolve => {
-    // console.log(`Checking exists of ${file.replace(/\//g, '\\')}`);
-    resolve(fs.existsSync(file));
-  });
-}
-
-async function getSinsExe() {
-  const foundFile = await findSinsExe();
+function getSinsExe() {
+  const foundFile = findSinsExe();
 
   // If SoaME is able to automatically find the Sins exe file, don't prompt the user
   if (foundFile) {
@@ -67,6 +62,11 @@ async function getSinsExe() {
   }
 
   // Unable to find Sins exe, so prompt user to select it
+  dialog.showMessageBox({
+    type: 'error',
+    message: 'Unable to automatically find the Stardock Launcher executable! Please select it.'
+  });
+
   const file = dialog.showOpenDialog({
     title: 'Select Sins exe',
     filters: [
@@ -83,12 +83,18 @@ async function getSinsExe() {
   return file;
 }
 
-async function getModsDir() {
-  const foundDir = await findModDir();
+function getModsDir() {
+  const foundDir = findModDir();
 
   if (foundDir) {
     return foundDir;
   }
+
+  // Unable to find mods directory, prompt the user to select it
+  dialog.showMessageBox({
+    type: 'error',
+    message: 'Unable to automatically find the Sins of a Solar Empire mods directory! Please select it.'
+  });
 
   const dir = dialog.showOpenDialog({
     title: 'Select Mod Directory',
@@ -111,87 +117,62 @@ async function getModsDir() {
 
 
 
-function createWindow() {
+async function createWindow() {
   // If debug
-  if (true) {
-    store.delete('sinsExe');
-    store.delete('modDir');
-  }
+  store.delete('sinsExe');
+  store.delete('modDir');
 
   // Determine location of sins exe and mod directory
   if (!store.has('sinsExe')) {
     store.set('sinsExe', getSinsExe());
   }
 
- if (!store.has('sinsModDir')) {
+  if (!store.has('sinsModDir')) {
     store.set('modDir', getModsDir());
   }
 
-  new Promise(resolve => {
-    // Check to see if new mods are available
-    isOnline().then(online => {
+  if (await isOnline()) {
+    const mods: Mod[] = [];
 
-      // If online, download latest mods.json
-      if (online) {
-        request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json', (error, response, body) => {
-          // If there were no errors in transmission, continue
-          if (!error && response.statusCode === 200) {
-            const mods: Mod[] = [];
-
-            JSON.parse(body).forEach(element => {
-              mods.push(new Mod(element.name, element.author, element.description, element.backgroundPictures, element.installScript));
-            });
-
-            global['mods'] = mods;
-
-            resolve();
-          }
-        });
-      } else {
-        // Not online, use local mods
-        throw new Error('Offline');
+    JSON.parse(await request.get('https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json'))
+      .forEach(element => {
+        mods.push(new Mod(element.name, element.author, element.description, element.backgroundPictures, element.installScript));
       }
-    });
-  })
-  .catch(() => {
-    global['mods'] = [
-      new Mod('Sins of a Solar Empire: Rebellion', 'Stardock', 'The vanilla experience', ['AdventExtermination.png'], []),
-      new Mod('Star Trek: Armada III', 'Somebody', 'A star trek mod!', ['ArmadaIII.jpg'], [])
-    ];
-  })
-  .then(() => {
-    // Create the browser window.
-    win = new BrowserWindow({
-      x: 0,
-      y: 0,
-      width: 1920,
-      height: 1080
-    });
+    );
 
-    const electronScreen = screen;
-    const size = electronScreen.getPrimaryDisplay().workAreaSize;
+    global['mods'] = mods;
+  }
 
-    if (serve) {
-      require('electron-reload')(__dirname, {
-        electron: require(`${__dirname}/node_modules/electron`)});
-      win.loadURL('http://localhost:4200');
-    } else {
-      win.loadURL(url.format({
-        pathname: path.join(__dirname, 'dist/index.html'),
-        protocol: 'file:',
-        slashes: true
-      }));
-    }
+  win = new BrowserWindow({
+    x: 0,
+    y: 0,
+    width: 1920,
+    height: 1080
+  });
 
-    win.webContents.openDevTools();
+  const electronScreen = screen;
+  const size = electronScreen.getPrimaryDisplay().workAreaSize;
 
-    // Emitted when the window is closed.
-    win.on('closed', () => {
-      // Dereference the window object, usually you would store window
-      // in an array if your app supports multi windows, this is the time
-      // when you should delete the corresponding element.
-      win = null;
-    });
+  if (serve) {
+    require('electron-reload')(__dirname, {
+      electron: require(`${__dirname}/node_modules/electron`)});
+    win.loadURL('http://localhost:4200');
+  } else {
+    win.loadURL(url.format({
+      pathname: path.join(__dirname, 'dist/index.html'),
+      protocol: 'file:',
+      slashes: true
+    }));
+  }
+
+  win.webContents.openDevTools();
+
+  // Emitted when the window is closed.
+  win.on('closed', () => {
+    // Dereference the window object, usually you would store window
+    // in an array if your app supports multi windows, this is the time
+    // when you should delete the corresponding element.
+    win = null;
   });
 }
 
