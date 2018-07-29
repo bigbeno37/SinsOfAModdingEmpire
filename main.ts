@@ -4,6 +4,7 @@ import * as url from 'url';
 import Mod from './models/Mod';
 import * as fs from 'fs';
 import * as request from 'request-promise-native';
+import useListeners from './IPCListeners';
 
 const Store = require('electron-store');
 const store = new Store();
@@ -141,14 +142,20 @@ async function createWindow() {
   store.delete('sinsExe');
   store.delete('modDir');
 
+  useListeners();
+
   // Determine location of sins exe and mod directory
   if (!store.has('sinsExe')) {
     store.set('sinsExe', getStardockLauncher());
   }
 
+  global['sinsExe'] = store.get('sinsExe');
+
   if (!store.has('sinsModDir')) {
     store.set('modDir', getModsDir());
   }
+
+  global['modDir'] = store.get('modDir');
 
   let modsJson;
 

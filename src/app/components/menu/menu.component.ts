@@ -1,7 +1,6 @@
 import {Component, Input, OnInit} from '@angular/core';
 import { ipcRenderer } from 'electron';
-import Mod from "../../../../models/Mod";
-const {dialog} = require('electron').remote;
+import Mod from '../../../../models/Mod';
 
 @Component({
   selector: 'app-menu',
@@ -13,17 +12,18 @@ export class MenuComponent implements OnInit {
   @Input() currentMod: Mod;
 
   onPlayClicked() {
-    // ipcRenderer.send('launchGameWithMod', this.currentMod);
+    document.getElementById('play-button').innerHTML = 'Launching';
+    document.getElementById('play-button').setAttribute('class', 'btn btn-success play-button disabled');
 
-    console.log(dialog.showOpenDialog({
-      title: 'hello world!',
-      properties: [
-        'openDirectory'
-      ]
-    }));
+    ipcRenderer.send('launchGameWithMod', this.currentMod);
   }
 
-  constructor() { }
+  constructor() {
+    ipcRenderer.on('launcherClosed', event => {
+      document.getElementById('play-button').innerHTML = 'Play';
+      document.getElementById('play-button').setAttribute('class', 'btn btn-success play-button');
+    });
+  }
 
   ngOnInit() {
   }
