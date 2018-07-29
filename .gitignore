@@ -7,6 +7,9 @@
 /app-builds
 main.js
 
+/models/*.js
+/util/*.js
+
 # dependencies
 /node_modules
 
