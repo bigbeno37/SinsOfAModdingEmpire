@@ -7,11 +7,11 @@
     "installSteps": [
       {
         "download": "https://www.moddb.com/mods/star-trek-armada-3/downloads/star-trek-armada-3-best-of-both-worlds",
-        "extract": "ALL",
+        "extract": "ALL"
       },
       {
         "download": "https://www.moddb.com/mods/star-trek-armada-3/downloads/sta3-core-nemesis",
-        "extract": "ALL",
+        "extract": "ALL"
       }
     ],
     "subMods": [
