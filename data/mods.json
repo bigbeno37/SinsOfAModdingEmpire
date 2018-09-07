@@ -11,7 +11,8 @@
       },
       {
         "download": "https://www.moddb.com/mods/star-trek-armada-3/downloads/sta3-core-nemesis",
-        "extract": "ALL"
+        "extract": "ALL",
+        "to": "STA3_BestOfBothWorlds_FinalEdition/"
       }
     ],
     "subMods": [
