@@ -1,6 +1,9 @@
+import {IPCEnum} from "../enums/IPCEnum";
+
 export default interface InstallationProgress {
-    receivedBytes: number;
-    totalBytes: number;
+    type: IPCEnum;
+    receivedBytes?: number;
+    totalBytes?: number;
     step: number;
     outOf: number;
 }

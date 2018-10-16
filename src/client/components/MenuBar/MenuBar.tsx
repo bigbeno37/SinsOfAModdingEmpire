@@ -1,18 +1,32 @@
-import {Component} from 'react';
 import * as React from 'react';
+import {Component} from 'react';
 import * as prettyBytes from 'pretty-bytes';
 import InstallationProgress from '../../../interfaces/InstallationProgress';
+import Logic from "../../Logic";
+import Mod from "../../../models/Mod";
 
 interface props {
-    modIsInstalled: boolean
-    play: () => void;
-    install: () => void;
+    selectedMod: Mod;
+    selectedModWasInstalled: () => void;
+    logic?: Logic;
+}
+
+interface state {
+    buttonDisabled: boolean;
     installProgress?: InstallationProgress;
 }
 
-export default class MenuBar extends Component<props> {
+export default class MenuBar extends Component<props, state> {
+    private readonly _logic: Logic;
+
     constructor(props: props) {
         super(props);
+
+        this.state = {
+            buttonDisabled: false
+        };
+
+        this._logic = this.props.logic || Logic.instance;
     }
 
     // play() {
@@ -32,9 +46,9 @@ export default class MenuBar extends Component<props> {
     //     this.setState({isDownloading: true, buttonText: "Installing"});
     //     ipcRenderer.send(IPCEnum.INSTALL, this.props.selectedMod);
     //
-    //     ipcRenderer.on(IPCEnum.NEW_STEP, (event: any, step: number, numSteps: number) => this.setState({step: step, numSteps: numSteps, progressText: "", buttonDisabled: true, progress: 0, fileSize: 0}));
+    //     ipcRenderer.on(IPCEnum.NEW_STEP, (event: any, step: number, numSteps: number) => this.setState({step: step, numSteps: numSteps, progressText: "", buttonDisabled: true, progressText: 0, fileSize: 0}));
     //     ipcRenderer.on(IPCEnum.DOWNLOAD_STARTED, (event: any, size: number) => this.setState({isDownloading: true, fileSize: size}));
-    //     ipcRenderer.on(IPCEnum.DOWNLOAD_PROGRESSED, (event: any, newProgress: number) => this.setState({progress: newProgress}));
+    //     ipcRenderer.on(IPCEnum.DOWNLOAD_PROGRESSED, (event: any, newProgress: number) => this.setState({progressText: newProgress}));
     //     ipcRenderer.on(IPCEnum.DOWNLOAD_FINISHED, () => this.setState({progressText: "Download complete! Installing mod..."}));
     //     ipcRenderer.on(IPCEnum.INSTALLATION_FINISHED, () => {
     //         this.setState({isDownloading: false, buttonDisabled: false});
@@ -43,37 +57,66 @@ export default class MenuBar extends Component<props> {
     //     });
     // };
 
-    handleOnClick = () => {
-        if (this.props.modIsInstalled) {
-            this.props.play();
+    handleOnClick = async () => {
+        this.setState({buttonDisabled: true});
+
+        if (this.props.selectedMod.isInstalled) {
+            await this._logic.launchStardock(this.props.selectedMod);
         } else {
-            this.props.install();
+            await this._logic.installMod(this.props.selectedMod, this.update);
+
+            this.props.selectedModWasInstalled();
         }
+
+        this.setState({buttonDisabled: false});
     };
 
-    progress = () => {
-        if (!this.props.installProgress) return 0;
+    update = (progress: InstallationProgress) => {
 
-        return this.props.installProgress.receivedBytes / this.props.installProgress.totalBytes * 100;
+    };
 
+    progressText = () => {
+        // Thorough null check to appease the typescript gods
+        if (this.state.installProgress
+            && this.state.installProgress.receivedBytes
+            && this.state.installProgress.totalBytes) {
+            return this.state.installProgress.receivedBytes / this.state.installProgress.totalBytes * 100;
+        }
+
+        return 0;
     };
 
     progressBar = () => {
-        // If there's no install progress given, do not generate progress bar
-        if (!this.props.installProgress) return null;
+        // If there's no install progressText given, do not generate progressText bar
+        if (!this.state.installProgress) return null;
 
-        let progressText = `${this.progress().toFixed(2)}%
-        - ${prettyBytes(this.props.installProgress.receivedBytes)}/${prettyBytes(this.props.installProgress.totalBytes)}
-        (Step ${this.props.installProgress.step} of ${this.props.installProgress.outOf})`;
+        let progressText = '';
+
+        if (this.state.installProgress.receivedBytes && this.state.installProgress.totalBytes) {
+            progressText = `${this.progressText().toFixed(2)}%
+        - ${prettyBytes(this.state.installProgress.receivedBytes)}/${prettyBytes(this.state.installProgress.totalBytes)}
+        (Step ${this.state.installProgress.step} of ${this.state.installProgress.outOf})`;
+        }
 
         return (
             <React.Fragment>
                 <p>{progressText}</p>
                 <div className="progress">
-                    <div className="progress-bar progress-bar-striped progress-bar-animated" style={{width: `${this.progress()}%`}} role="progressbar"> </div>
+                    <div className="progress-bar progress-bar-striped progress-bar-animated"
+                         style={{width: `${this.progressText()}%`}} role="progressbar"> </div>
                 </div>
             </React.Fragment>
         );
+    };
+
+    buttonText = () => {
+        if (this.props.selectedMod.isInstalled) {
+            return "Play";
+        } else if (!this.state.buttonDisabled) {
+            return "Install";
+        } else {
+            return "Installing..."
+        }
     };
 
     render() {
@@ -84,8 +127,8 @@ export default class MenuBar extends Component<props> {
                 </div>
 
                 <div className="col-4 text-right">
-                    <button className="btn btn-default btn-lg" onClick={this.handleOnClick} disabled={this.props.installProgress !== undefined}>
-                        {this.props.modIsInstalled ? 'Play' : 'Install'}
+                    <button className="btn btn-default btn-lg" onClick={this.handleOnClick} disabled={this.state.buttonDisabled}>
+                        {this.buttonText()}
                     </button>
                 </div>
             </div>
