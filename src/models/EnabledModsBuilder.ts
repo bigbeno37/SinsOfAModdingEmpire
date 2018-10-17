@@ -4,8 +4,8 @@ import * as os from 'os';
  * Creates a text representation of a desired enabledMods.txt
  */
 export default class EnabledModsBuilder {
-    enabledMods: string;
-    mods: string[];
+    private enabledMods: string;
+    private mods: string[];
 
     constructor() {
         this.enabledMods = `TXT${os.EOL}Version 0${os.EOL}`;
@@ -13,6 +13,8 @@ export default class EnabledModsBuilder {
     }
 
     addMod(mod: string) {
+        if (mod === '') return this;
+
         this.mods.push(mod);
 
         return this;
