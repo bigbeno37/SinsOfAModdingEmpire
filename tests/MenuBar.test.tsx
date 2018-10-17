@@ -6,11 +6,21 @@ import Mod from "../src/models/Mod";
 let installedMod: Mod;
 let notInstalledMod: Mod;
 
+async function waitFor(promise: Promise<any>) {
+    return new Promise(resolve => {
+        promise.then(() => resolve());
+    });
+}
+
 describe('Menu Bar', () => {
     beforeEach(() => {
         installedMod = new Mod('', '', '', [], [], true);
         notInstalledMod = new Mod('', '', '', [], [], false);
     });
+
+    /**
+     * Play tests
+     */
 
     it('shows play when mod is installed', () => {
         const menuBar = shallow(<MenuBar selectedMod={installedMod} selectedModWasInstalled={() => {}}/>);
@@ -62,20 +72,19 @@ describe('Menu Bar', () => {
         const menuBar = shallow(<MenuBar selectedMod={installedMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
 
         expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
-
         menuBar.find('.btn').simulate('click');
-
         expect(menuBar.find('.btn').prop("disabled")).toBeTruthy();
 
         mockResolve();
 
-        // Why do we need to wrap in a promise? Who knows
-        await new Promise((resolve) => {
-            mockPromise.then(() => resolve());
-        });
+        await waitFor(mockPromise);
 
         expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
     });
+
+    /**
+     * Install tests
+     */
 
     it('shows install when mod is not installed', () => {
         const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} selectedModWasInstalled={() => {}}/>);
@@ -131,10 +140,7 @@ describe('Menu Bar', () => {
 
         mockResolve();
 
-        // Why do we need to wrap in a promise? Who knows
-        await new Promise((resolve) => {
-            mockPromise.then(() => resolve());
-        });
+        await waitFor(mockPromise);
 
         expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
     });
@@ -152,9 +158,7 @@ describe('Menu Bar', () => {
 
         menuBar.find('.btn').simulate('click');
 
-        await new Promise(resolve => {
-            mockPromise.then(() => resolve());
-        });
+        await waitFor(mockPromise);
 
         expect(smwiMock).toHaveBeenCalled();
     });
@@ -173,9 +177,7 @@ describe('Menu Bar', () => {
 
         menuBar.find('.btn').simulate('click');
 
-        await new Promise(resolve => {
-            mockPromise.then(() => resolve());
-        });
+        await waitFor(mockPromise);
 
         expect(menuBar.find('.btn').text()).toBe('Play');
     });
@@ -194,15 +196,11 @@ describe('Menu Bar', () => {
 
         menuBar.find('.btn').simulate('click');
 
-        await new Promise(resolve => {
-            installMockPromise.then(() => resolve());
-        });
+        await waitFor(installMockPromise);
 
         menuBar.find('.btn').simulate('click');
 
-        await new Promise(resolve => {
-            launchMockPromise.then(() => resolve());
-        });
+        await waitFor(launchMockPromise);
 
         expect(logicMock.launchStardock).toHaveBeenCalledWith(notInstalledMod);
     });

@@ -24,11 +24,9 @@ export default class Logic {
             mod.subMods.forEach(subMod => subMod.isEnabled ? enabledMods.addMod(subMod.enabledModsName) : null);
         }
 
-        ipcRenderer.send(IPCEnum.PLAY, enabledMods.toString());
+        this.ipcSendTo(IPCEnum.PLAY, enabledMods.toString());
 
-        return new Promise(resolve => {
-            ipcRenderer.on(IPCEnum.LAUNCHER_CLOSED, () => resolve());
-        });
+        await this.listenToChannel(IPCEnum.LAUNCHER_CLOSED);
     }
 
     public async installMod(mod: Mod, update: (progress: InstallationProgress) => void) {
@@ -45,5 +43,17 @@ export default class Logic {
         //         resolve();
         //     });
         // });
+    }
+
+    public ipcSendTo(channel: string, ...data: any) {
+        ipcRenderer.send(channel, ...data);
+    }
+
+    public async listenToChannel(channel: string) {
+        return new Promise(resolve => {
+            ipcRenderer.on(channel, (event: any, ...args: any) => {
+                resolve([event, ...args]);
+            });
+        });
     }
 }
