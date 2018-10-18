@@ -5,7 +5,7 @@ import ModsListItem from '../ModsListItem/ModsListItem';
 
 interface props {
     mods: Mod[];
-    selectedMod: number;
+    selectedMod: Mod;
     onItemClick: (event: any) => void;
 }
 
@@ -16,7 +16,7 @@ export default class ModsList extends Component<props> {
                 <div className="col">
                     {this.props.mods.map((mod, index) => {
                         return (
-                            <div key={mod.name} className={mod === this.props.mods[this.props.selectedMod] ? "selected row" : "row"}>
+                            <div key={mod.name} className={mod === this.props.selectedMod ? "selected row" : "row"}>
                                 <ModsListItem mod={mod} onClick={this.props.onItemClick} modNumber={index}/>
                             </div>
                         );

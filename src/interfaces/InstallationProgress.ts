@@ -4,6 +4,5 @@ export default interface InstallationProgress {
     type: IPCEnum;
     receivedBytes?: number;
     totalBytes?: number;
-    step: number;
-    outOf: number;
+    step?: number;
 }

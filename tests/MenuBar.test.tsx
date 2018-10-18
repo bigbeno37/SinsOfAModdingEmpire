@@ -2,6 +2,8 @@ import {shallow} from 'enzyme';
 import MenuBar from '../src/client/components/MenuBar/MenuBar';
 import * as React from 'react';
 import Mod from "../src/models/Mod";
+import InstallationProgress from "../src/interfaces/InstallationProgress";
+import {IPCEnum} from "../src/enums/IPCEnum";
 
 let installedMod: Mod;
 let notInstalledMod: Mod;
@@ -15,7 +17,10 @@ async function waitFor(promise: Promise<any>) {
 describe('Menu Bar', () => {
     beforeEach(() => {
         installedMod = new Mod('', '', '', [], [], true);
-        notInstalledMod = new Mod('', '', '', [], [], false);
+        notInstalledMod = new Mod('', '', '', [], [
+            {download: '', to: '', extract: ''},
+            {download: '', to: '', extract: ''}
+        ], false);
     });
 
     /**
@@ -203,5 +208,115 @@ describe('Menu Bar', () => {
         await waitFor(launchMockPromise);
 
         expect(logicMock.launchStardock).toHaveBeenCalledWith(notInstalledMod);
+    });
+
+    it('shows installation bar after clicking on install', async () => {
+        let logicMock: any = jest.fn();
+
+        let update = (progress: InstallationProgress) => {};
+
+        logicMock.installMod = jest.fn((mod, updateCb) => {
+            update = updateCb;
+            return new Promise(resolve => {});
+        });
+
+        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+
+        expect(menuBar.find('#progress-text').exists()).toBeFalsy();
+
+        menuBar.find('.btn').simulate('click');
+
+        update({type: IPCEnum.NEW_STEP, step: 1});
+
+        expect(menuBar.find('#progress-text').exists()).toBeTruthy();
+    });
+
+    it('shows the correct step count after clicking on install', () => {
+        let logicMock: any = jest.fn();
+
+        let update = (progress: InstallationProgress) => {};
+
+        logicMock.installMod = jest.fn((mod, updateCb) => {
+            update = updateCb;
+            return new Promise(resolve => {});
+        });
+
+        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+
+        menuBar.find('.btn').simulate('click');
+
+        update({type: IPCEnum.NEW_STEP, step: 1});
+
+        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)')
+    });
+
+    it('updates the percent and byte counter after clicking on install and downloading', () => {
+        let logicMock: any = jest.fn();
+
+        let update = (progress: InstallationProgress) => {};
+
+        logicMock.installMod = jest.fn((mod, updateCb) => {
+            update = updateCb;
+            return new Promise(resolve => {});
+        });
+
+        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+
+        menuBar.find('.btn').simulate('click');
+
+        update({type: IPCEnum.NEW_STEP, step: 1});
+        update({type: IPCEnum.DOWNLOAD_STARTED, receivedBytes: 0, totalBytes: 100});
+
+        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/100 B (Step 1 of 2)');
+
+        update({type: IPCEnum.DOWNLOAD_STARTED, receivedBytes: 50, totalBytes: 100});
+
+        expect(menuBar.find('#progress-text').text()).toBe('50.00% - 50 B/100 B (Step 1 of 2)');
+    });
+
+    it('updates to the next step after a step has been completed', () => {
+        let logicMock: any = jest.fn();
+
+        let update = (progress: InstallationProgress) => {};
+
+        logicMock.installMod = jest.fn((mod, updateCb) => {
+            update = updateCb;
+            return new Promise(resolve => {});
+        });
+
+        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+
+        menuBar.find('.btn').simulate('click');
+
+        update({type: IPCEnum.NEW_STEP, step: 1});
+
+        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)');
+
+        update({type: IPCEnum.NEW_STEP, step: 2});
+
+        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 2 of 2)');
+    });
+
+    it('removes progress bar after install has completed', () => {
+        let logicMock: any = jest.fn();
+
+        let update = (progress: InstallationProgress) => {};
+
+        logicMock.installMod = jest.fn((mod, updateCb) => {
+            update = updateCb;
+            return new Promise(resolve => {});
+        });
+
+        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+
+        menuBar.find('.btn').simulate('click');
+
+        update({type: IPCEnum.NEW_STEP, step: 1});
+
+        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)');
+
+        update({type: IPCEnum.DOWNLOAD_FINISHED});
+
+        expect(menuBar.find('#progress-text').exists()).toBeFalsy();
     });
 });

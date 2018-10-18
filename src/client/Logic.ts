@@ -24,36 +24,47 @@ export default class Logic {
             mod.subMods.forEach(subMod => subMod.isEnabled ? enabledMods.addMod(subMod.enabledModsName) : null);
         }
 
-        this.ipcSendTo(IPCEnum.PLAY, enabledMods.toString());
+        this.sendToChannel(IPCEnum.PLAY, enabledMods.toString());
 
-        await this.listenToChannel(IPCEnum.LAUNCHER_CLOSED);
+        await this.channelResponse(IPCEnum.LAUNCHER_CLOSED);
     }
 
     public async installMod(mod: Mod, update: (progress: InstallationProgress) => void) {
-        // this.setState({isDownloading: true, buttonText: "Installing"});
-        // ipcRenderer.send(IPCEnum.INSTALL, this.props.selectedMod);
-        //
-        // ipcRenderer.on(IPCEnum.NEW_STEP, (event: any, step: number, numSteps: number) => this.setState({step: step, numSteps: numSteps, progressText: "", buttonDisabled: true, progress: 0, fileSize: 0}));
-        // ipcRenderer.on(IPCEnum.DOWNLOAD_STARTED, (event: any, size: number) => this.setState({isDownloading: true, fileSize: size}));
-        // ipcRenderer.on(IPCEnum.DOWNLOAD_PROGRESSED, (event: any, newProgress: number) => this.setState({progress: newProgress}));
-        // ipcRenderer.on(IPCEnum.DOWNLOAD_FINISHED, () => this.setState({progressText: "Download complete! Installing mod..."}));
-        //
-        // return new Promise(resolve => {
-        //     ipcRenderer.on(IPCEnum.INSTALLATION_FINISHED, () => {
-        //         resolve();
-        //     });
-        // });
+        this.sendToChannel(IPCEnum.INSTALL, mod);
+
+        this.subscribeToChannel(IPCEnum.NEW_STEP, (event, step) => {
+            update({type: IPCEnum.NEW_STEP, step: step});
+        });
+
+        this.subscribeToChannel(IPCEnum.DOWNLOAD_STARTED, (event, size) => {
+            update({type: IPCEnum.DOWNLOAD_STARTED, receivedBytes: 0, totalBytes: size});
+        });
+
+        this.subscribeToChannel(IPCEnum.DOWNLOAD_PROGRESSED, (event, newProgress) => {
+            update({type: IPCEnum.DOWNLOAD_PROGRESSED, receivedBytes: newProgress});
+        });
+
+        return new Promise(resolve => {
+            this.subscribeToChannel(IPCEnum.DOWNLOAD_FINISHED, () => {
+                update({type: IPCEnum.DOWNLOAD_FINISHED});
+                resolve();
+            });
+        });
     }
 
-    public ipcSendTo(channel: string, ...data: any) {
+    public sendToChannel(channel: string, ...data: any) {
         ipcRenderer.send(channel, ...data);
     }
 
-    public async listenToChannel(channel: string) {
+    public async channelResponse(channel: string) {
         return new Promise(resolve => {
-            ipcRenderer.on(channel, (event: any, ...args: any) => {
+            ipcRenderer.on(channel, (event: any, ...args: any[]) => {
                 resolve([event, ...args]);
             });
         });
+    }
+
+    public subscribeToChannel(channel: string, callback: (event: any, ...args: any[]) => void) {
+        ipcRenderer.on(channel, (event: any, ...args: any[]) => callback(event, ...args));
     }
 }

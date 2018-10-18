@@ -4,6 +4,7 @@ import * as prettyBytes from 'pretty-bytes';
 import InstallationProgress from '../../../interfaces/InstallationProgress';
 import Logic from "../../Logic";
 import Mod from "../../../models/Mod";
+import {IPCEnum} from "../../../enums/IPCEnum";
 
 interface props {
     selectedMod: Mod;
@@ -72,7 +73,7 @@ export default class MenuBar extends Component<props, state> {
     };
 
     update = (progress: InstallationProgress) => {
-
+        this.setState({installProgress: progress.type === IPCEnum.DOWNLOAD_FINISHED ? undefined : {...this.state.installProgress, ...progress}});
     };
 
     progressText = () => {
@@ -90,17 +91,13 @@ export default class MenuBar extends Component<props, state> {
         // If there's no install progressText given, do not generate progressText bar
         if (!this.state.installProgress) return null;
 
-        let progressText = '';
-
-        if (this.state.installProgress.receivedBytes && this.state.installProgress.totalBytes) {
-            progressText = `${this.progressText().toFixed(2)}%
-        - ${prettyBytes(this.state.installProgress.receivedBytes)}/${prettyBytes(this.state.installProgress.totalBytes)}
-        (Step ${this.state.installProgress.step} of ${this.state.installProgress.outOf})`;
-        }
+        let progressText = `${this.progressText().toFixed(2)}% ` +
+        `- ${prettyBytes(this.state.installProgress.receivedBytes || 0)}/${prettyBytes(this.state.installProgress.totalBytes || 0)} ` +
+        `(Step ${this.state.installProgress.step} of ${this.props.selectedMod.installSteps.length})`;
 
         return (
             <React.Fragment>
-                <p>{progressText}</p>
+                <p id="progress-text">{progressText}</p>
                 <div className="progress">
                     <div className="progress-bar progress-bar-striped progress-bar-animated"
                          style={{width: `${this.progressText()}%`}} role="progressbar"> </div>

@@ -11,7 +11,7 @@ interface props {
 }
 
 interface state {
-    selectedMod: number;
+    selectedMod: Mod;
     mods: Mod[];
 }
 
@@ -21,32 +21,25 @@ export default class App extends Component<props, state> {
         super(props, context);
 
         this.state = {
-            selectedMod: 0,
+            selectedMod: this.props.mods[0],
             mods: this.props.mods
         };
     }
 
-    changeSelectedMod = (newSelectedMod: number) => {
+    changeSelectedMod = (newSelectedMod: Mod) => {
         this.setState({selectedMod: newSelectedMod});
     };
 
     toggleEnabled = (subMod: SubMod) => {
-        let newMods = [...this.state.mods];
-        let newSubMod = newMods[this.state.selectedMod].subMods.find(sub => sub === subMod);
+        subMod.toggleEnable();
 
-        if (newSubMod) {
-            newSubMod.toggleEnable();
-        }
-
-        this.setState({mods: newMods});
+        this.forceUpdate();
     };
 
     setModAsInstalled = () => {
-        let newMods = [...this.state.mods];
+        this.state.selectedMod.isInstalled = true;
 
-        newMods[this.state.selectedMod].isInstalled = true;
-
-        this.setState({mods: newMods});
+        this.forceUpdate();
     };
 
     render() {
@@ -59,9 +52,9 @@ export default class App extends Component<props, state> {
                         </div>
 
                         <div className="col d-flex align-items-start flex-column mod-details-menu">
-                            <ModDetails selectedMod={this.state.mods[this.state.selectedMod]} toggleEnabled={this.toggleEnabled}/>
+                            <ModDetails selectedMod={this.state.selectedMod} toggleEnabled={this.toggleEnabled}/>
 
-                            <MenuBar selectedMod={this.state.mods[this.state.selectedMod]} setModAsInstalled={this.setModAsInstalled}/>
+                            <MenuBar selectedMod={this.state.selectedMod} selectedModWasInstalled={this.setModAsInstalled}/>
                         </div>
                     </div>
                 </div>

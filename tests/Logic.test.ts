@@ -8,15 +8,23 @@ let logic: Logic;
 describe('Logic', () => {
     beforeEach(() => {
         logic = new Logic();
-        logic.ipcSendTo = jest.fn();
-        logic.listenToChannel = jest.fn(() => new Promise(resolve => resolve()));
+        logic.sendToChannel = jest.fn();
+        logic.channelResponse = jest.fn(() => new Promise(resolve => resolve()));
+        logic.subscribeToChannel = jest.fn();
     });
 
-    it('launchStardock calls ipcRenderer with correct parameters', () => {
-        const mod = new Mod('', '', '', [], [], true);
+    it('calls ipcRenderer with correct parameters in launchStardock', () => {
+        logic.launchStardock(new Mod('', '', '', [], [], true))
+            .then();
 
-        logic.launchStardock(mod).then(() => {});
+        expect(logic.sendToChannel).toHaveBeenCalledWith(IPCEnum.PLAY, `TXT${os.EOL}Version 0${os.EOL}enabledModNameCount 0${os.EOL}`);
+    });
 
-        expect(logic.ipcSendTo).toHaveBeenCalledWith(IPCEnum.PLAY, `TXT${os.EOL}Version 0${os.EOL}enabledModNameCount 0${os.EOL}`);
+    it('calls ipcRenderer immediately with correct parameters in installMod', () => {
+        const mod = new Mod('', '', '', [], [], false);
+
+        logic.installMod(mod, () => {}).then();
+
+        expect(logic.sendToChannel).toHaveBeenCalledWith(IPCEnum.INSTALL, mod);
     });
 });
