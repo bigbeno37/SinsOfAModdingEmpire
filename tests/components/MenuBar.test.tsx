@@ -1,9 +1,9 @@
 import {shallow} from 'enzyme';
-import MenuBar from '../src/client/components/MenuBar/MenuBar';
+import MenuBar from '../../src/client/components/MenuBar/MenuBar';
 import * as React from 'react';
-import Mod from "../src/models/Mod";
-import InstallationProgress from "../src/interfaces/InstallationProgress";
-import {IPCEnum} from "../src/enums/IPCEnum";
+import Mod from "../../src/models/Mod";
+import InstallationProgress from "../../src/interfaces/InstallationProgress";
+import {IPCEnum} from "../../src/enums/IPCEnum";
 
 let installedMod: Mod;
 let notInstalledMod: Mod;

@@ -11,13 +11,6 @@ interface props {
 
 export default class ModDetails extends Component<props> {
     render() {
-        let subMods = this.props.selectedMod.subMods;
-        let subModsElements = null;
-
-        if (subMods) {
-            subModsElements = (<SubMods subMods={subMods}  toggleEnabled={this.props.toggleEnabled}/>);
-        }
-
         return (
             <React.Fragment>
                 <div className="row">
@@ -27,7 +20,9 @@ export default class ModDetails extends Component<props> {
                     </div>
                 </div>
 
-                {subModsElements}
+                {this.props.selectedMod.subMods.length > 0
+                    ? <SubMods subMods={this.props.selectedMod.subMods}  toggleEnabled={this.props.toggleEnabled}/>
+                    : null}
 
                 <div className="row">
                     <div className="col text-justify">
