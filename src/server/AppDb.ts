@@ -1,20 +1,20 @@
 import Mod from '../models/Mod';
-import axios from "axios";
 import ModData from '../interfaces/ModData';
 import SubMod from '../models/SubMod';
-
-const store = require('store');
+import * as got from 'got';
+import * as fs from 'fs';
 
 export default class AppDb {
     public static async getAllMods() {
-
         let sins = new Mod("Sins of a Solar Empire: Rebellion", "Ironclad Studios", "The vanilla experience", [], [], true);
 
-        if (store.get("modsList")) {
-            return [sins, ...store.get("modsList")];
-        }
+        let dataMods: ModData[] = [];
 
-        let dataMods = (await axios.get("https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json")).data as ModData[];
+        if (process.env.DEV_MODE) {
+            dataMods = JSON.parse(fs.readFileSync('data/mods.json', 'utf8'));
+        } else {
+            dataMods = (await got("https://raw.githubusercontent.com/bigbeno37/SinsOfAModdingEmpire/master/data/mods.json", {json: true})).body as ModData[];
+        }
 
         let mods: Mod[] = [];
 

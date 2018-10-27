@@ -4,6 +4,7 @@ import { enableLiveReload } from 'electron-compile';
 import AppDb from './AppDb';
 import IPCHandler from './IPCHandler';
 import SinsFinder from './SinsFinder';
+import * as env from 'dotenv';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -11,6 +12,7 @@ let mainWindow: Electron.BrowserWindow | null = null;
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
+env.config();
 
 if (isDevMode) {
   enableLiveReload({strategy: 'react-hmr'});
@@ -60,11 +62,11 @@ app.on('window-all-closed', () => {
   }
 });
 
-app.on('activate', () => {
+app.on('activate', async () => {
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   if (mainWindow === null) {
-    createWindow();
+    await createWindow();
   }
 });
 

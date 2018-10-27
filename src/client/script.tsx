@@ -6,8 +6,8 @@ import {remote} from 'electron';
 
 let render = () => {
     ReactDOM.render(<AppContainer><App mods={remote.getGlobal('mods')}/></AppContainer>, document.getElementById('App'));
-}
+};
 
 render();
-// @ts-ignore
-if (module.hot) { module.hot.accept(render); }
+
+if ((module as any).hot) { (module as any).hot.accept(render); }
