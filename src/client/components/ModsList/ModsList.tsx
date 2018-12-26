@@ -1,28 +1,19 @@
 import {Component} from 'react';
+import Mod from '../../../shared/models/Mod';
 import * as React from 'react';
-import Mod from '../../../models/Mod';
 import ModsListItem from '../ModsListItem/ModsListItem';
 
-interface props {
+type prop = {
     mods: Mod[];
-    selectedMod: Mod;
-    onItemClick: (event: any) => void;
-}
+    onModItemClicked: (mod: Mod) => void;
+};
 
-export default class ModsList extends Component<props> {
+export default class ModsList extends Component<prop> {
     render() {
         return (
-            <div className="row">
-                <div className="col">
-                    {this.props.mods.map((mod, index) => {
-                        return (
-                            <div key={mod.name} className={mod === this.props.selectedMod ? "selected row" : "row"}>
-                                <ModsListItem mod={mod} onClick={this.props.onItemClick} modNumber={index}/>
-                            </div>
-                        );
-                    })}
-                </div>
-            </div>
+            <>
+                {this.props.mods.map((mod, index) => <ModsListItem mod={mod} key={index} onModItemClicked={this.props.onModItemClicked}/>)}
+            </>
         );
     }
 }

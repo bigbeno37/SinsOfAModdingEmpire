@@ -1,15 +1,47 @@
-import * as fs from "fs";
-import {dialog} from "electron";
+import {dialog} from 'electron';
+import * as fs from 'fs';
 
 export default class SinsFinder {
     private static stardockLauncher = 'steamapps/common/Sins of a Solar Empire Rebellion/StardockLauncher.exe';
     private static commonDrive: string[] = ['C:', 'D:', 'E:', 'F:'];
 
     /**
-     * Called by getStardockLauncher, responsible for automatically finding the Stardock Launcher executable
-     * @return string|null Location of Stardock Launcher executable
+     * Prompts the user to select the Stardock Launcher executable
      */
-    private static findStardockLauncher(): string | null {
+    private static promptUserForStardockLauncher(): string {
+        dialog.showMessageBox({
+            message: 'Unable to automatically find the Stardock Launcher! Please select the Stardock Launcher',
+            title: 'Select the Stardock Launcher',
+            type: 'error'
+        });
+        let path = dialog.showOpenDialog({
+            title: 'Select the Stardock Launcher',
+            filters: [{name: 'exe', extensions: ['exe']}]
+        })[0];
+
+        while (path.split('\\').pop() !== 'StardockLauncher.exe') {
+            dialog.showMessageBox({
+                title: 'Select the Stardock Launcher',
+                message: 'Incorrect exe selected, select the Stardock Launcher',
+                type: 'error'
+            });
+
+            path = dialog.showOpenDialog({
+                title: 'Select the Stardock Launcher',
+                filters: [{name: 'exe', extensions: ['exe']}]
+            })[0];
+        }
+
+        return path;
+    }
+
+    /**
+     * Attempts to automatically find the Stardock Launcher. If unsuccessful,
+     * will prompt the user to navigate to it
+     */
+    public static async findStardockLauncher() {
+        console.log('Looking for Stardock Launcher...');
+
         const commonPath: string[] = [
             `/Program Files (x86)/Steam/${this.stardockLauncher}`,
             `/Program Files/Steam/${this.stardockLauncher}`,
@@ -22,104 +54,72 @@ export default class SinsFinder {
             for (const pathName of commonPath) {
                 const checkPath = `${drive}${pathName}`;
 
-                console.log(`Checking ${drive}${pathName}`);
-
-                if (fs.existsSync(checkPath)) {
+                if (await this.pathExists(checkPath)) {
                     return checkPath;
                 }
             }
         }
 
-        return null;
+        // Unable to locate Stardock Launcher, prompt user
+        return this.promptUserForStardockLauncher();
     }
 
     /**
-     * Called by getModDir, responsible for automatically finding the Sins mod directory
-     * @return string|null Location of the Sins mod directory
+     * Prompts the user to select the mods directory
      */
-    private static findModDir(): string | null {
+    private static promptUserForModsDir() {
+        dialog.showMessageBox({
+            message: 'Unable to automatically find the mods directory! Please select the mods directory',
+            title: 'Select the mods directory',
+            type: 'error'
+        });
+
+        let path = dialog.showOpenDialog({
+            title: 'Select the mods directory',
+            properties: ['openDirectory']
+        })[0];
+
+        while (path.split('\\').pop() !== 'Mods-Rebellion v1.85') {
+            dialog.showMessageBox({
+                title: 'Select the mods directory',
+                message: 'Incorrect folder selected, select the mods directory!',
+                type: 'error'
+            });
+
+            path = dialog.showOpenDialog({
+                title: 'Select the mods directory',
+                properties: ['openDirectory']
+            })[0];
+        }
+
+        return path;
+    }
+
+    public static async findModsDir() {
+        console.log('Looking for the mods directory...');
+
         // Using the user setting to check if the mod folder exists
-        const checkMod = '/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/EnabledMods.txt';
+        const checkMod = '/Documents/My Games/Ironclad Games/Sins of a Solar Empire Rebellion/Mods-Rebellion v1.85/enabledMods.txt';
 
         for (const drive of this.commonDrive) {
             const checkPath = `${drive}/Users/${process.env.USERNAME}${checkMod}`;
 
-            if (fs.existsSync(checkPath)) {
-                return checkPath.replace('EnabledMods.txt', '');
+            if (await this.pathExists(checkPath)) {
+                return checkPath.replace('enabledMods.txt', '');
             }
         }
 
-        return null;
+        // Unable to find mods dir, prompt user
+        return this.promptUserForModsDir();
     }
 
     /**
-     * Determines the location of the Stardock Launcher executable. Calls findStardockLauncher, and if it returns null, will prompt
-     * the user to manually navigate to it
-     * @return string The location of the Stardock Launcher executable
+     * Checks if the given path is valid
+     * @param path True if the path exists, false otherwise
      */
-    static getStardockLauncher(): string {
-        const foundFile = this.findStardockLauncher();
-
-        // If SoaME is able to automatically find the Sins exe file, don't prompt the user
-        if (foundFile) {
-            return foundFile;
-        }
-
-        // Unable to find Sins exe, so prompt user to select it
-        dialog.showMessageBox({
-            type: 'error',
-            message: 'Unable to automatically find the Stardock Launcher executable! Please select it.'
+    public static async pathExists(path: string) {
+        return await new Promise(resolve => {
+            fs.access(path, fs.constants.F_OK, err => resolve(!err));
         });
-
-        const file = dialog.showOpenDialog({
-            title: 'Select Sins exe',
-            filters: [
-                {name: 'exe', extensions: ['exe']}
-            ]
-        })[0];
-
-        // If the file selected is not the correct Sins exe, ask again
-        if (!(file.split('\\').pop() === 'StardockLauncher.exe')) {
-            return this.getStardockLauncher();
-        }
-
-        // File selected is correct Sins exe, return
-        return file;
-    }
-
-    /**
-     * Determines the location of the Sins mod directory. Calls findModDir, and if it returns null, will prompt
-     * the user to manually navigate to it
-     * @return string The location of the Sins mod directory
-     */
-    static getModsDir(): string {
-        const foundDir = this.findModDir();
-
-        if (foundDir) {
-            return foundDir;
-        }
-
-        // Unable to find mods directory, prompt the user to select it
-        dialog.showMessageBox({
-            type: 'error',
-            message: 'Unable to automatically find the Sins of a Solar Empire mods directory! Please select it.'
-        });
-
-        const dir = dialog.showOpenDialog({
-            title: 'Select Mod Directory',
-            properties: [
-                'openDirectory'
-            ]
-        })[0];
-
-        // If the directory selected is not the correct directory, ask again
-        if (!(dir.split('\\').pop() === 'Mods-Rebellion v1.85')) {
-            console.log(dir);
-
-            return this.getModsDir();
-        }
-
-        // File selected is correct Sins exe, return
-        return dir;
     }
 }

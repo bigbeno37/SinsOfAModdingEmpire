@@ -1,22 +1,50 @@
-import {ipcMain, BrowserWindow} from "electron";
+import Mod from '../shared/models/Mod';
+import {ipcMain} from 'electron';
+import {IPC} from '../shared/enums/IPC';
 import * as fs from 'fs';
+import EnabledModsBuilder from './EnabledModsBuilder';
 import {execFile} from 'child_process';
-import Mod from '../models/Mod';
-import ModInstaller from './ModInstaller';
-import {IPCEnum} from '../enums/IPCEnum';
+import Store = require('electron-store');
+import {DB} from '../shared/enums/DB';
 
-export default class IPCHandler {
-    public registerHandlers(modsDir: string, stardockLauncher: string, window: BrowserWindow) {
-        ipcMain.on(IPCEnum.PLAY, (event: any, enabledMods: string) => {
-            fs.writeFile(`${modsDir}enabledMods.txt`, enabledMods);
+const store = new Store();
 
-            execFile(stardockLauncher, () => {
-                event.sender.send(IPCEnum.LAUNCHER_CLOSED);
+export class IPCHandler {
+    constructor() {
+        ipcMain.on(IPC.PLAY, async (event: any, mod: Mod) => await this.handlePlay(event, mod));
+    }
+
+    async handlePlay(event: any, mod: Mod) {
+        // Write to enabledMods.txt
+        await new Promise((resolve, reject) => {
+            fs.writeFile(
+                `${global[DB.MODS_DIR]}\\enabledMods.txt`,
+                new EnabledModsBuilder().addMod(mod.enabledModsName).toString(),
+                err => {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    resolve();
+                }
+            );
+        });
+
+        // Everything went fine, save this as the currently selected mod for future loads
+        store.set(DB.SELECTED_MOD, mod.name);
+
+        // Launch StardockLauncher.exe
+        await new Promise((resolve, reject) => {
+            execFile(global[DB.STARDOCK_LAUNCHER], error => {
+                if (error) {
+                    reject(error);
+                }
+
+                resolve();
             });
         });
 
-        ipcMain.on(IPCEnum.INSTALL, async (event: any, mod: Mod) => {
-            new ModInstaller().installMod(mod, window, modsDir);
-        });
+        // Once the stardock launcher has been closed, inform the client
+        event.sender.send(IPC.PLAY);
     }
 }

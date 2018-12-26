@@ -1,22 +1,27 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <!-- Required meta tags -->
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<head>
+  <!-- Required meta tags -->
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="style.css">
+  <!-- Bootstrap CSS -->
+  <link rel="stylesheet" href="../../node_modules/bootstrap/dist/css/bootstrap.min.css">
 
-    <title>Hello, world!</title>
-  </head>
-  <body>
-    <div id="App"></div>
+  <link rel="stylesheet" href="style.css">
 
-    <script src="../../node_modules/jquery/dist/jquery.min.js"></script>
-    <script src="../../node_modules/bootstrap/dist/js/bootstrap.min.js.map"></script>
-    <script>window.exports = module.exports</script>
-    <script src="script.tsx"></script>
-  </body>
+  <title>Sins of a Modding Empire</title>
+</head>
+<body>
+  <div id="App"></div>
+
+  <script>
+    window.$ = window.jQuery = require('jquery');
+    window.Bootstrap = require('bootstrap');
+
+    window.exports = module.exports;
+  </script>
+
+  <script src="script.tsx"></script>
+</body>
 </html>

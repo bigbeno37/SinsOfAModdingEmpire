@@ -1,8 +1,4 @@
-body, html, .container-fluid, .container-fluid>.row, #App {
-    min-height: 100%;
+html, body, #App, .container-fluid, .container-fluid > .row {
     height: 100%;
-}
-
-.mod-details-menu .mt-auto, .mod-details-menu .sub-mods{
-    width: 100%;
+    min-height: 100%;
 }

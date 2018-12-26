@@ -1,322 +1,90 @@
-import {shallow} from 'enzyme';
+import {shallow, ShallowWrapper} from 'enzyme';
 import MenuBar from '../../src/client/components/MenuBar/MenuBar';
 import * as React from 'react';
-import Mod from "../../src/models/Mod";
-import InstallationProgress from "../../src/interfaces/InstallationProgress";
-import {IPCEnum} from "../../src/enums/IPCEnum";
+import Mod from '../../src/shared/models/Mod';
 
-let installedMod: Mod;
-let notInstalledMod: Mod;
+import Utils from '../../src/client/misc/Utils';
+jest.mock('../../src/client/Utils');
+Utils.storeGet = jest.fn(() => ['']);
 
-async function waitFor(promise: Promise<any>) {
-    return new Promise(resolve => {
-        promise.then(() => resolve());
-    });
-}
+const mod = new Mod('name', 'author', 'description', '', []);
+
+let menuBar: ShallowWrapper;
 
 describe('Menu Bar', () => {
     beforeEach(() => {
-        installedMod = new Mod('', '', '', [], [], true);
-        notInstalledMod = new Mod('', '', '', [], [
-            {download: '', to: '', extract: ''},
-            {download: '', to: '', extract: ''}
-        ], false);
+        menuBar = shallow(<MenuBar selectedMod={mod}/>);
     });
 
-    /**
-     * Play tests
-     */
+    it('disables the Play button after isPlaying is false', () => {
+        menuBar.setState({isInstalled: true});
+        expect(menuBar.find('button').prop('disabled')).toBeFalsy();
 
-    it('shows play when mod is installed', () => {
-        const menuBar = shallow(<MenuBar selectedMod={installedMod} selectedModWasInstalled={() => {}}/>);
+        menuBar.setState({isPlaying: true});
 
-        expect(menuBar.find('.btn').text()).toBe('Play');
+        expect(menuBar.find('button').prop('disabled')).toBeTruthy();
     });
 
-    it('can be clicked on when mod is installed', () => {
-        const menuBar = shallow(<MenuBar selectedMod={installedMod} selectedModWasInstalled={() => {}}/>);
+    it('reenables the Play button after isPlaying is set to true from false', () => {
+        menuBar.setState({isInstalled: true});
+        menuBar.setState({isPlaying: true});
 
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
+        expect(menuBar.find('button').prop('disabled')).toBeTruthy();
+
+        menuBar.setState({isPlaying: false});
+
+        expect(menuBar.find('button').prop('disabled')).toBeFalsy();
     });
 
-    it('calls launchStardock in logic after play is clicked', () => {
-        let logicMock: any = jest.fn();
-        logicMock.launchStardock = jest.fn();
+    it('changes the text to Playing... when isPlaying is set to true', () => {
+        menuBar.setState({isInstalled: true});
+        expect(menuBar.find('button').text()).toBe('Play');
 
-        const menuBar = shallow(<MenuBar selectedMod={installedMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
+        menuBar.setState({isPlaying: true});
 
-        menuBar.find('.btn').simulate('click');
-
-        expect(logicMock.launchStardock).toHaveBeenCalledWith(installedMod);
+        expect(menuBar.find('button').text()).toBe('Playing...');
     });
 
-    it('disables the play button after clicking it', () => {
-        let logicMock: any = jest.fn();
+    it('changes the text to Play when isPlaying is set to false', () => {
+        menuBar.setState({isInstalled: true});
+        menuBar.setState({isPlaying: true});
 
-        let mockPromise = new Promise(resolve => {});
+        expect(menuBar.find('button').text()).toBe('Playing...');
 
-        logicMock.launchStardock = jest.fn(() => mockPromise);
+        menuBar.setState({isPlaying: false});
 
-        const menuBar = shallow(<MenuBar selectedMod={installedMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
-
-        menuBar.find('.btn').simulate('click');
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeTruthy();
+        expect(menuBar.find('button').text()).toBe('Play');
     });
 
-    it('reenables the play button once launchStardock resolves', async () => {
-        let logicMock: any = jest.fn();
+    it('sets isPlaying to true after clicking the Play button', () => {
+        menuBar.setState({isInstalled: true});
+        expect(menuBar.state('isPlaying')).toBeFalsy();
 
-        let mockResolve = () => {};
-        let mockPromise = new Promise(resolve => {mockResolve = resolve;});
+        menuBar.find('button').simulate('click');
 
-        logicMock.launchStardock = jest.fn(() => mockPromise );
-
-        const menuBar = shallow(<MenuBar selectedMod={installedMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
-        menuBar.find('.btn').simulate('click');
-        expect(menuBar.find('.btn').prop("disabled")).toBeTruthy();
-
-        mockResolve();
-
-        await waitFor(mockPromise);
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
+        expect(menuBar.state('isPlaying')).toBeTruthy();
     });
 
-    /**
-     * Install tests
-     */
+    it('sets isPlaying to false after receiving the IPC callback', () => {
+        menuBar.setState({isInstalled: true});
+        menuBar.find('button').simulate('click');
 
-    it('shows install when mod is not installed', () => {
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} selectedModWasInstalled={() => {}}/>);
+        expect(menuBar.state('isPlaying')).toBeTruthy();
 
-        expect(menuBar.find('.btn').text()).toBe('Install');
+        (menuBar.instance() as MenuBar).stardockLauncherClosed();
+
+        expect(menuBar.state('isPlaying')).toBeFalsy();
     });
 
-    it('can be clicked when mod is not installed', () => {
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod}  selectedModWasInstalled={() => {}}/>);
+    it('shows the Install button if installed is false', () => {
+        menuBar.setState({isInstalled: false});
 
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
+        expect(menuBar.find('button').text()).toBe('Install');
     });
 
-    it('calls installMod in logic after install is pressed', () => {
-        let logicMock: any = jest.fn();
-        logicMock.installMod = jest.fn();
+    it('shows the Play button if installed is true', () => {
+        menuBar.setState({isInstalled: true});
 
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock}  selectedModWasInstalled={() => {}}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        expect(logicMock.installMod.mock.calls[0]).toContain(notInstalledMod);
-    });
-
-    it('changes text to Installing... after clicking on Install', () => {
-        let logicMock: any = jest.fn();
-        logicMock.installMod = jest.fn();
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        expect(menuBar.find('.btn').text()).toBe('Install');
-
-        menuBar.find('.btn').simulate('click');
-
-        expect(menuBar.find('.btn').text()).toBe('Installing...');
-    });
-
-    it('reenables button after installMod resolves', async () => {
-        let logicMock: any = jest.fn();
-
-        let mockResolve = () => {};
-        let mockPromise = new Promise(resolve => {mockResolve = resolve;});
-
-        logicMock.installMod = jest.fn(() => mockPromise );
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
-
-        menuBar.find('.btn').simulate('click');
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeTruthy();
-
-        mockResolve();
-
-        await waitFor(mockPromise);
-
-        expect(menuBar.find('.btn').prop("disabled")).toBeFalsy();
-    });
-
-    it('calls selectedModWasInstalled after installMod resolves', async () => {
-        let logicMock: any = jest.fn();
-        let smwiMock: any = jest.fn();
-
-        let mockPromise = new Promise(resolve => resolve());
-
-        logicMock.installMod = jest.fn(() => mockPromise);
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock}
-                                         selectedModWasInstalled={smwiMock}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        await waitFor(mockPromise);
-
-        expect(smwiMock).toHaveBeenCalled();
-    });
-
-    it('changes text to Play after mod has installed', async () => {
-        let logicMock: any = jest.fn();
-
-        let mockPromise = new Promise(resolve => resolve());
-
-        logicMock.installMod = jest.fn(() => mockPromise);
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock}
-                                         selectedModWasInstalled={() => { notInstalledMod.isInstalled = true }}/>);
-
-        expect(menuBar.find('.btn').text()).toBe('Install');
-
-        menuBar.find('.btn').simulate('click');
-
-        await waitFor(mockPromise);
-
-        expect(menuBar.find('.btn').text()).toBe('Play');
-    });
-
-    it('calls launchStardock after mod has been installled and Play is clicked', async () => {
-        let logicMock: any = jest.fn();
-
-        let installMockPromise = new Promise(resolve => resolve());
-        let launchMockPromise = new Promise(resolve => resolve());
-
-        logicMock.installMod = jest.fn(() => installMockPromise);
-        logicMock.launchStardock = jest.fn(() => launchMockPromise);
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock}
-                                         selectedModWasInstalled={() => { notInstalledMod.isInstalled = true }}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        await waitFor(installMockPromise);
-
-        menuBar.find('.btn').simulate('click');
-
-        await waitFor(launchMockPromise);
-
-        expect(logicMock.launchStardock).toHaveBeenCalledWith(notInstalledMod);
-    });
-
-    it('shows installation bar after clicking on install', async () => {
-        let logicMock: any = jest.fn();
-
-        let update = (progress: InstallationProgress) => {};
-
-        logicMock.installMod = jest.fn((mod, updateCb) => {
-            update = updateCb;
-            return new Promise(resolve => {});
-        });
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        expect(menuBar.find('#progress-text').exists()).toBeFalsy();
-
-        menuBar.find('.btn').simulate('click');
-
-        update({type: IPCEnum.NEW_STEP, step: 1});
-
-        expect(menuBar.find('#progress-text').exists()).toBeTruthy();
-    });
-
-    it('shows the correct step count after clicking on install', () => {
-        let logicMock: any = jest.fn();
-
-        let update = (progress: InstallationProgress) => {};
-
-        logicMock.installMod = jest.fn((mod, updateCb) => {
-            update = updateCb;
-            return new Promise(resolve => {});
-        });
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        update({type: IPCEnum.NEW_STEP, step: 1});
-
-        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)')
-    });
-
-    it('updates the percent and byte counter after clicking on install and downloading', () => {
-        let logicMock: any = jest.fn();
-
-        let update = (progress: InstallationProgress) => {};
-
-        logicMock.installMod = jest.fn((mod, updateCb) => {
-            update = updateCb;
-            return new Promise(resolve => {});
-        });
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        update({type: IPCEnum.NEW_STEP, step: 1});
-        update({type: IPCEnum.DOWNLOAD_STARTED, receivedBytes: 0, totalBytes: 100});
-
-        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/100 B (Step 1 of 2)');
-
-        update({type: IPCEnum.DOWNLOAD_STARTED, receivedBytes: 50, totalBytes: 100});
-
-        expect(menuBar.find('#progress-text').text()).toBe('50.00% - 50 B/100 B (Step 1 of 2)');
-    });
-
-    it('updates to the next step after a step has been completed', () => {
-        let logicMock: any = jest.fn();
-
-        let update = (progress: InstallationProgress) => {};
-
-        logicMock.installMod = jest.fn((mod, updateCb) => {
-            update = updateCb;
-            return new Promise(resolve => {});
-        });
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        update({type: IPCEnum.NEW_STEP, step: 1});
-
-        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)');
-
-        update({type: IPCEnum.NEW_STEP, step: 2});
-
-        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 2 of 2)');
-    });
-
-    it('removes progress bar after install has completed', () => {
-        let logicMock: any = jest.fn();
-
-        let update = (progress: InstallationProgress) => {};
-
-        logicMock.installMod = jest.fn((mod, updateCb) => {
-            update = updateCb;
-            return new Promise(resolve => {});
-        });
-
-        const menuBar = shallow(<MenuBar selectedMod={notInstalledMod} logic={logicMock} selectedModWasInstalled={() => {}}/>);
-
-        menuBar.find('.btn').simulate('click');
-
-        update({type: IPCEnum.NEW_STEP, step: 1});
-
-        expect(menuBar.find('#progress-text').text()).toBe('0.00% - 0 B/0 B (Step 1 of 2)');
-
-        update({type: IPCEnum.DOWNLOAD_FINISHED});
-
-        expect(menuBar.find('#progress-text').exists()).toBeFalsy();
+        expect(menuBar.find('button').text()).toBe('Play');
     });
 });

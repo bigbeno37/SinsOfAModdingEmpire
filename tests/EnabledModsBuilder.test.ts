@@ -1,5 +1,5 @@
-import EnabledModsBuilder from '../../src/models/EnabledModsBuilder';
-import * as os from "os";
+import * as os from 'os';
+import EnabledModsBuilder from '../src/server/EnabledModsBuilder';
 
 let builder: EnabledModsBuilder;
 

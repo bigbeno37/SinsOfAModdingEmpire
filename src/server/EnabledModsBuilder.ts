@@ -13,7 +13,9 @@ export default class EnabledModsBuilder {
     }
 
     addMod(mod: string) {
-        if (mod === '') return this;
+        if (mod === '') {
+            return this;
+        }
 
         this.mods.push(mod);
 
