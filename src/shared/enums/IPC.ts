@@ -1,3 +1,4 @@
 export enum IPC {
-    PLAY = 'play'
+    PLAY = 'play',
+    INSTALL = 'install'
 }

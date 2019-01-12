@@ -35,22 +35,27 @@ const createWindow = async () => {
   }
 
   // If the store doesn't have an installed list OR the value ISN'T an array, initialise an empty array
-  if (!store.has(DB.INSTALLED) || Array.isArray(store.get(DB.INSTALLED))) {
+  if (!store.has(DB.INSTALLED) || !Array.isArray(store.get(DB.INSTALLED))) {
     store.set(DB.INSTALLED, []);
+  }
+
+  // If the store doesn't have Sins of a Solar Empire: Rebellion as an installed 'mod', add it
+  if (!store.get(DB.INSTALLED).includes('Sins of a Solar Empire: Rebellion')) {
+    store.set(DB.INSTALLED, [...store.get(DB.INSTALLED), 'Sins of a Solar Empire: Rebellion']);
   }
 
   // Register relevant sins locations
   global[DB.STARDOCK_LAUNCHER] = store.get(DB.STARDOCK_LAUNCHER);
   global[DB.MODS_DIR] = store.get(DB.MODS_DIR);
 
-  // Register IPC handlers
-  ipc = new IPCHandler();
-
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
   });
+
+  // Register IPC handlers
+  ipc = new IPCHandler(mainWindow);
 
   // and load the index.html of the app.
   mainWindow.loadURL(`file://${__dirname}/../client/index.html`);
