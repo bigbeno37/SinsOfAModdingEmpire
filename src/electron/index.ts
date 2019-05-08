@@ -1,17 +1,10 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
-import SinsFinder from './SinsFinder';
-import {IPCHandler} from './IPCHandler';
-import Store = require('electron-store');
-import {DB} from '../shared/enums/DB';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow: Electron.BrowserWindow | null = null;
-// @ts-ignore
-let ipc;
-let store = new Store();
 
 const isDevMode = process.execPath.match(/[\\/]electron/);
 
@@ -20,45 +13,14 @@ if (isDevMode) {
 }
 
 const createWindow = async () => {
-  // If there isn't an entry for stardockLauncher OR the entry points to an invalid location,
-  // find a valid location
-  if (!store.has(DB.STARDOCK_LAUNCHER)
-      || typeof store.get(DB.STARDOCK_LAUNCHER) !== 'string'
-      || !( await SinsFinder.pathExists(store.get(DB.STARDOCK_LAUNCHER)) )) {
-    store.set(DB.STARDOCK_LAUNCHER, await SinsFinder.findStardockLauncher());
-  }
-
-  if (!store.has(DB.MODS_DIR)
-      || typeof store.get(DB.MODS_DIR) !== 'string'
-      || !( await SinsFinder.pathExists(store.get(DB.MODS_DIR)) )) {
-    store.set(DB.MODS_DIR, await SinsFinder.findModsDir());
-  }
-
-  // If the store doesn't have an installed list OR the value ISN'T an array, initialise an empty array
-  if (!store.has(DB.INSTALLED) || !Array.isArray(store.get(DB.INSTALLED))) {
-    store.set(DB.INSTALLED, []);
-  }
-
-  // If the store doesn't have Sins of a Solar Empire: Rebellion as an installed 'mod', add it
-  if (!store.get(DB.INSTALLED).includes('Sins of a Solar Empire: Rebellion')) {
-    store.set(DB.INSTALLED, [...store.get(DB.INSTALLED), 'Sins of a Solar Empire: Rebellion']);
-  }
-
-  // Register relevant sins locations
-  global[DB.STARDOCK_LAUNCHER] = store.get(DB.STARDOCK_LAUNCHER);
-  global[DB.MODS_DIR] = store.get(DB.MODS_DIR);
-
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 720,
   });
 
-  // Register IPC handlers
-  ipc = new IPCHandler(mainWindow);
-
   // and load the index.html of the app.
-  mainWindow.loadURL(`file://${__dirname}/../client/index.html`);
+  mainWindow.loadURL(`file://${__dirname}/../react/index.html`);
 
   // Open the DevTools.
   if (isDevMode) {

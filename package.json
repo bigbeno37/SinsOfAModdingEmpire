@@ -1,9 +1,9 @@
 {
   "name": "sinsofamoddingempire",
   "productName": "sinsofamoddingempire",
-  "version": "0.2.0",
+  "version": "1.0.0",
   "description": "My Electron application description",
-  "main": "src/server/index.ts",
+  "main": "src/electron/index.ts",
   "scripts": {
     "start": "electron-forge start",
     "package": "electron-forge package",
@@ -29,7 +29,7 @@
         ]
       },
       "electronPackagerConfig": {
-        "packageManager": "yarn"
+        "packageManager": "npm"
       },
       "electronWinstallerConfig": {
         "name": "sinsofamoddingempire"
@@ -47,61 +47,32 @@
     }
   },
   "dependencies": {
-    "bootstrap": "^4.2.1",
-    "electron": "^4.0.0",
-    "electron-compile": "^6.4.3",
+    "@types/electron-devtools-installer": "^2.2.0",
+    "bootstrap": "^4.3.1",
+    "electron": "^5.0.1",
+    "electron-compile": "^6.4.4",
     "electron-devtools-installer": "^2.2.4",
-    "electron-dl": "^1.12.0",
     "electron-squirrel-startup": "^1.0.0",
-    "electron-store": "^2.0.0",
-    "got": "^9.5.0",
-    "htmlparser2": "^3.10.0",
-    "jquery": "^3.3.1",
-    "popper.js": "^1.14.6",
-    "react": "^16.6.3",
-    "react-dom": "^16.6.3",
-    "react-hot-loader": "^4.3.12",
+    "mobx": "^5.9.4",
+    "mobx-react": "^5.4.3",
+    "react-hot-loader": "^3.1.3",
+    "reactstrap": "^8.0.0",
+    "styled-components": "^4.2.0",
     "tslib": "^1.9.3"
   },
   "devDependencies": {
-    "@types/electron-devtools-installer": "^2.0.2",
-    "@types/electron-store": "^1.3.0",
-    "@types/enzyme": "^3.1.15",
-    "@types/enzyme-adapter-react-16": "^1.0.3",
-    "@types/got": "^9.3.0",
-    "@types/htmlparser2": "^3.7.31",
-    "@types/jest": "^23.3.10",
-    "@types/react": "^16.7.17",
-    "@types/react-dom": "^16.0.11",
+    "@types/react": "^16.8.16",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-hot-loader": "^4.1.0",
+    "@types/reactstrap": "^8.0.1",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
-    "electron-forge": "^5.2.3",
-    "electron-prebuilt-compile": "3.0.10",
-    "enzyme": "^3.8.0",
-    "enzyme-adapter-react-16": "^1.7.1",
-    "jest": "^23.6.0",
-    "ts-jest": "^23.10.5",
-    "tslint": "^5.11.0",
-    "typescript": "^3.2.2"
-  },
-  "jest": {
-    "transform": {
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(jsx?|tsx?)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json",
-      "node"
-    ],
-    "testPathIgnorePatterns": [
-      "<rootDir>/node_modules/",
-      "<rootDir>/out/"
-    ],
-    "setupTestFrameworkScriptFile": "<rootDir>tests/setupTests.ts"
+    "electron-forge": "^5.2.4",
+    "electron-prebuilt-compile": "4.0.0",
+    "react": "^16.8.6",
+    "react-dom": "^16.8.6",
+    "tslint": "^5.16.0",
+    "typescript": "^3.4.5"
   }
 }
