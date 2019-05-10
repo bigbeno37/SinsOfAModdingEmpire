@@ -9,6 +9,8 @@ class State {
     @observable selectedMod: Mod = this.mods[0];
 }
 
-const state = new State();
+export let state = new State();
 
-export {state};
+export const resetState = () => {
+    state = new State();
+};

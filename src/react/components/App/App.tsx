@@ -3,10 +3,8 @@ import {Col, Container, Row} from 'reactstrap';
 import {ModsList} from '../ModsList/ModsList';
 import {ModDetails} from '../ModDetails/ModDetails';
 
-export class App extends React.Component {
-  render() {
-    return (
-      <Container fluid={true}>
+export const App = () => (
+    <Container fluid={true}>
         <Row>
             <Col xs={4}>
                 <ModsList/>
@@ -15,7 +13,5 @@ export class App extends React.Component {
                 <ModDetails/>
             </Col>
         </Row>
-      </Container>
-    );
-  }
-}
+    </Container>
+);

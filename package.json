@@ -1,7 +1,7 @@
 {
   "name": "sinsofamoddingempire",
   "productName": "sinsofamoddingempire",
-  "version": "1.0.0",
+  "version": "0.0.1",
   "description": "My Electron application description",
   "main": "src/electron/index.ts",
   "scripts": {
@@ -9,7 +9,8 @@
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",
-    "lint": "tslint --project tsconfig.json --type-check --force"
+    "lint": "tslint --project tsconfig.json --type-check --force",
+    "test": "jest"
   },
   "keywords": [],
   "author": "bigbeno37",
@@ -61,17 +62,25 @@
     "tslib": "^1.9.3"
   },
   "devDependencies": {
+    "@types/enzyme": "^3.9.1",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/jest": "^24.0.12",
     "@types/react": "^16.8.16",
     "@types/react-dom": "^16.8.4",
     "@types/react-hot-loader": "^4.1.0",
     "@types/reactstrap": "^8.0.1",
+    "@types/styled-components": "^4.1.14",
     "babel-plugin-transform-async-to-generator": "^6.24.1",
     "babel-preset-env": "^1.7.0",
     "babel-preset-react": "^6.24.1",
     "electron-forge": "^5.2.4",
     "electron-prebuilt-compile": "4.0.0",
+    "enzyme": "^3.9.0",
+    "enzyme-adapter-react-16": "^1.12.1",
+    "jest": "^24.8.0",
     "react": "^16.8.6",
     "react-dom": "^16.8.6",
+    "ts-jest": "^24.0.2",
     "tslint": "^5.16.0",
     "typescript": "^3.4.5"
   }
