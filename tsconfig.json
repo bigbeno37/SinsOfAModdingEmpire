@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "experimentalDecorators": true,
     "removeComments": false,
     "preserveConstEnums": true,
     "sourceMap": true,
@@ -8,7 +9,6 @@
     "noImplicitReturns": true,
     "suppressImplicitAnyIndexErrors": true,
     "strictNullChecks": true,
-    "noUnusedLocals": true,
     "noImplicitThis": true,
     "noUnusedParameters": true,
     "importHelpers": true,
@@ -16,7 +16,7 @@
     "module": "commonjs",
     "moduleResolution": "node",
     "pretty": true,
-    "target": "ES2017",
+    "target": "es2015",
     "jsx": "react"
   },
   "formatCodeOptions": {
