@@ -1,6 +1,8 @@
 import { app, BrowserWindow } from 'electron';
 import installExtension, { REACT_DEVELOPER_TOOLS } from 'electron-devtools-installer';
 import { enableLiveReload } from 'electron-compile';
+import {DB} from './DB';
+import {Utils} from './Utils';
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -13,6 +15,19 @@ if (isDevMode) {
 }
 
 const createWindow = async () => {
+  const db = new DB();
+
+  // If the stardockLauncher path isn't found, prompt the user to find it
+  if (!db.stardockLauncher) {
+    Utils.showErrorDialog('Unable to find the stardock launcher executable! Please locate it.');
+    db.stardockLauncher = Utils.showOpenFileDialog('exe');
+  }
+
+  if (!db.modsDir) {
+    Utils.showErrorDialog('Unable to find the mods directory! Please locate it.');
+    db.modsDir = Utils.showOpenFolderDialog();
+  }
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
     width: 1280,
