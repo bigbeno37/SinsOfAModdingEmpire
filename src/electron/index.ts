@@ -21,12 +21,12 @@ const createWindow = async () => {
   // If the stardockLauncher path isn't found, prompt the user to find it
   if (!db.stardockLauncher) {
     Utils.showErrorDialog('Unable to find the stardock launcher executable! Please locate it.');
-    db.stardockLauncher = Utils.showOpenFileDialog('exe').replace('\\', '/');
+    db.stardockLauncher = Utils.showOpenFileDialog('exe');
   }
 
   if (!db.modsDir) {
     Utils.showErrorDialog('Unable to find the mods directory! Please locate it.');
-    db.modsDir = Utils.showOpenFolderDialog().replace('\\', '/');
+    db.modsDir = Utils.showOpenFolderDialog();
   }
 
   setupIpcHandlers();
