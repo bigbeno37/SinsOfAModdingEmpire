@@ -13,7 +13,7 @@ describe('ModsListItem', () => {
         item = shallow(<ModsListItem mod={mod}/>);
     });
 
-    it('updates the state with a new mod when clicked', () => {
+    it('updates the MenuBarState with a new mod when clicked', () => {
         expect(state.selectedMod).not.toBe(mod);
 
         item.simulate('click');
