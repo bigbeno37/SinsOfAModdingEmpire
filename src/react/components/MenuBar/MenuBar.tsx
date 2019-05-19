@@ -4,12 +4,14 @@ import {ipcRenderer} from 'electron';
 import {Channel} from '../../../shared/Channel';
 import {state} from '../../State';
 import {Component} from 'react';
+import {observer} from 'mobx-react';
 
-type state = {
+type MenuBarState = {
     disabled: boolean
 };
 
-export class MenuBar extends Component<{}, state> {
+@observer
+export class MenuBar extends Component<{}, MenuBarState> {
     constructor(props: {}) {
         super(props);
 
@@ -17,11 +19,12 @@ export class MenuBar extends Component<{}, state> {
     }
 
     render() {
+        const isInstalled = state.installedMods.includes(state.selectedMod);
         return (
             <Row>
                 <Col>
                     <Button
-                        color={'success'}
+                        color={isInstalled ? 'success' : 'primary'}
                         size={'lg'}
                         className={'text-right'}
                         disabled={this.state.disabled}
@@ -31,7 +34,7 @@ export class MenuBar extends Component<{}, state> {
                             ipcRenderer.once(Channel.PLAY, () => this.setState({disabled: false}));
                         }}
                     >
-                        Play
+                        {isInstalled ? 'Play' : 'Install'}
                     </Button>
                 </Col>
             </Row>
